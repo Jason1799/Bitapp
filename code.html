@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BitMart KYC Generator</title>
+<!-- Load Tailwind CSS v3 with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration for custom colors if needed -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'input-bg': '#f0f2f5', // Approximate light gray from screenshot
+            'border-dashed': '#d1d5db',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom CSS for specific styling needs -->
+<style data-purpose="custom-styling">
+    /* Remove default resizing handle from textarea for cleaner look if desired, keeping vertical only */
+    textarea {
+      resize: vertical;
+    }
+    
+    /* Custom scrollbar for raw text area to match modern aesthetic */
+    textarea::-webkit-scrollbar {
+      width: 8px;
+    }
+    textarea::-webkit-scrollbar-track {
+      background: #f1f1f1; 
+    }
+    textarea::-webkit-scrollbar-thumb {
+      background: #888; 
+      border-radius: 4px;
+    }
+    textarea::-webkit-scrollbar-thumb:hover {
+      background: #555; 
+    }
+
+    /* Input styling override to match the flat gray look without heavy borders */
+    .custom-input {
+      background-color: #f0f2f5;
+      border: 1px solid transparent; /* subtle border */
+      transition: all 0.2s;
+    }
+    .custom-input:focus {
+      background-color: #ffffff;
+      border-color: #e5e7eb;
+      box-shadow: 0 0 0 2px rgba(229, 231, 235, 0.5);
+    }
+
+    /* Date/Time icon placement */
+    .icon-input-wrapper {
+      position: relative;
+    }
+    .icon-input-wrapper input {
+      padding-right: 2.5rem; /* space for icon */
+    }
+    .icon-input-wrapper .icon {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #6b7280;
+    }
+  </style>
+<style>.custom-input { background-color: #f3f4f6; border-color: transparent; } .custom-input:focus { background-color: #ffffff; border-color: #e5e7eb; }</style></head>
+<body class="bg-white text-gray-900 font-sans min-h-screen flex flex-col">
+<!-- BEGIN: Header -->
+<header class="border-b border-gray-200 sticky top-0 bg-white z-10" data-purpose="main-header">
+<div class="max-w-screen-2xl mx-auto px-4 md:px-8 h-16 flex items-center gap-12">
+<!-- Left: Logo -->
+<div class="flex items-center">
+<!-- Using text as placeholder for logo based on prompt, but structuring for image replacement -->
+<div class="flex items-center gap-2 font-bold text-xl tracking-tight"><img alt="BitMart Logo" class="h-6 w-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCIsWGS4u82vcmjPmBLrtOI3ANk0huPKqPqcIwHyBckN_-9WKP_ILcffQaVFijoO_ZQsMGUsWtf_0CALH-LbV2YG-ZyVwqwSpDKh6abZsDqye96Y4UzrzQpYeyUVnBOoDT4WosfixAmGyXQbJpvNFEdEa_QDzrBTT8KuQRI-bs_xDDcG8XNadNerm8m8FGZ3no7UP4hkdq1iXg6CNfJso2vZTDRKT3PcH2PsbhQt4bw9nF8nM5oZ9_lBmZdS4B-Inr_a2IlRxLzEOm"/><span class="text-black font-bold">BitMart</span></div>
+</div>
+<!-- Center/Right: Navigation Tabs -->
+<nav aria-label="Main Navigation" class="flex h-full gap-8 text-sm md:text-base">
+<a class="flex items-center h-full text-gray-600 hover:text-gray-900 transition-colors border-b-2 border-transparent px-1" href="#">
+          BitMart Listing Agreement Generator
+        </a>
+<a aria-current="page" class="flex items-center h-full text-black font-bold border-b-4 border-black px-1" href="#">
+          BitMart KYC Generator
+        </a>
+</nav>
+<!-- Spacer for layout balance if needed, or user profile -->
+<div class="hidden md:block w-8"></div>
+</div>
+</header>
+<!-- END: Header -->
+<!-- BEGIN: Main Content -->
+<main class="flex-grow max-w-screen-2xl mx-auto w-full px-4 md:px-8 py-8" data-purpose="application-body">
+<div class="flex flex-col lg:flex-row gap-8 xl:gap-12 h-full">
+<!-- BEGIN: Left Column (Raw Text & Upload) -->
+<section class="w-full lg:w-[30%] flex flex-col gap-6" data-purpose="left-panel">
+<!-- KYC Raw Text Area -->
+<div class="flex flex-col gap-2 flex-grow">
+<label class="text-sm font-medium text-gray-700" for="kyc-raw-text">KYC Raw Text</label>
+<textarea class="custom-input w-full p-4 text-sm text-gray-600 placeholder-gray-400 focus:ring-0 resize-none h-64 lg:h-80 xl:h-96 rounded-md" id="kyc-raw-text" placeholder="Paste KYC raw text here..."></textarea>
+</div>
+<!-- File Upload Area -->
+<div class="border-2 border-dashed border-gray-300 rounded-lg p-8 bg-gray-50 flex flex-col items-center justify-center text-center gap-4 hover:bg-gray-100 transition-colors cursor-pointer group" data-purpose="file-upload-zone">
+<!-- Upload Icon -->
+<div class="text-gray-400 group-hover:text-gray-600">
+<!-- Simple SVG Upload Icon Placeholder -->
+<svg class="w-10 h-10 mx-auto" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="text-sm text-gray-600">
+<span class="font-medium">Drag and drop files here</span>
+<div class="my-1 text-xs text-gray-400">or</div>
+<span>Browse files</span>
+</div>
+<button class="bg-white border border-gray-300 text-gray-700 font-medium py-1.5 px-4 rounded shadow-sm hover:bg-gray-50 text-sm" type="button">
+            Browse files
+          </button>
+</div>
+<!-- Analyze Button -->
+<button class="w-full bg-black text-white font-medium py-3 hover:bg-gray-800 transition-colors shadow-md mt-auto rounded-md" type="button">
+          Analyze
+        </button>
+</section>
+<!-- END: Left Column -->
+<!-- BEGIN: Right Column (Data Fields Form) -->
+<section class="w-full lg:w-[70%] flex flex-col" data-purpose="right-panel">
+<h1 class="text-xl font-bold mb-6 text-gray-900">KYC Data Fields</h1>
+<!-- Form Grid Container -->
+<form class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-6">
+<!-- Name -->
+<div class="flex flex-col gap-1.5">
+<label class="text-sm text-gray-700" for="name">Name</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0" id="name" type="text"/>
+</div>
+<!-- Country -->
+<div class="flex flex-col gap-1.5">
+<label class="text-sm text-gray-700" for="country">Country</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0" id="country" type="text"/>
+</div>
+<!-- Gender -->
+<div class="flex flex-col gap-1.5">
+<label class="text-sm text-gray-700" for="gender">Gender</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0 placeholder-gray-500" id="gender" placeholder="select/text" type="text"/>
+</div>
+<!-- ID Expiry Status -->
+<div class="flex flex-col gap-1.5 icon-input-wrapper">
+<label class="text-sm text-gray-700" for="id-expiry-status">ID Expiry Status</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0 placeholder-gray-500" id="id-expiry-status" placeholder="select" type="text"/>
+<!-- Icon placeholder for dropdown arrow usually, using a simple chevron -->
+<div class="icon">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" fill-rule="evenodd"></path>
+</svg>
+</div>
+</div>
+<!-- ID Expiry Date -->
+<div class="flex flex-col gap-1.5 icon-input-wrapper">
+<label class="text-sm text-gray-700" for="id-expiry-date">ID Expiry Date</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0 placeholder-gray-500" id="id-expiry-date" placeholder="date" type="text"/>
+<!-- Calendar Icon -->
+<div class="icon">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0h18M5.25 12h13.5h-13.5zm0 3.75h13.5h-13.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- ID Type -->
+<div class="flex flex-col gap-1.5">
+<label class="text-sm text-gray-700" for="id-type">ID Type</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0" id="id-type" type="text"/>
+</div>
+<!-- ID Number -->
+<div class="flex flex-col gap-1.5">
+<label class="text-sm text-gray-700" for="id-number">ID Number</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0" id="id-number" type="text"/>
+</div>
+<!-- Date of Birth -->
+<div class="flex flex-col gap-1.5 icon-input-wrapper">
+<label class="text-sm text-gray-700" for="dob">Date of Birth</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0 placeholder-gray-500" id="dob" placeholder="date" type="text"/>
+<!-- Calendar Icon -->
+<div class="icon">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0h18M5.25 12h13.5h-13.5zm0 3.75h13.5h-13.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- Submit Time -->
+<div class="flex flex-col gap-1.5 icon-input-wrapper">
+<label class="text-sm text-gray-700" for="submit-time">Submit Time</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0 placeholder-gray-500" id="submit-time" placeholder="datetime" type="text"/>
+<!-- Calendar Icon -->
+<div class="icon">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0h18M5.25 12h13.5h-13.5zm0 3.75h13.5h-13.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- Review Time -->
+<div class="flex flex-col gap-1.5 icon-input-wrapper">
+<label class="text-sm text-gray-700" for="review-time">Review Time</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0 placeholder-gray-500" id="review-time" placeholder="datetime" type="text"/>
+<!-- Calendar Icon -->
+<div class="icon">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0h18M5.25 12h13.5h-13.5zm0 3.75h13.5h-13.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- Submit IP -->
+<div class="flex flex-col gap-1.5">
+<label class="text-sm text-gray-700" for="submit-ip">Submit IP</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0" id="submit-ip" type="text"/>
+</div>
+<!-- IP Location -->
+<div class="flex flex-col gap-1.5">
+<label class="text-sm text-gray-700" for="ip-location">IP Location</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0" id="ip-location" type="text"/>
+</div>
+<!-- Submit Device ID (Span 2) -->
+<div class="flex flex-col gap-1.5 md:col-span-2">
+<label class="text-sm text-gray-700" for="submit-device-id">Submit Device ID</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0" id="submit-device-id" type="text"/>
+</div>
+<!-- Device Type -->
+<div class="flex flex-col gap-1.5">
+<label class="text-sm text-gray-700" for="device-type">Device Type</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0" id="device-type" type="text"/>
+</div>
+<!-- Verification Channel (Span Full) -->
+<div class="flex flex-col gap-1.5 col-span-1 md:col-span-2 lg:col-span-3">
+<label class="text-sm text-gray-700" for="verification-channel">Verification Channel</label>
+<input class="custom-input w-full rounded-md px-3 py-2 text-sm focus:ring-0" id="verification-channel" type="text"/>
+</div>
+<!-- Generate Button -->
+<div class="col-span-1 md:col-span-2 lg:col-span-3 flex justify-end mt-8">
+<button class="bg-black text-white px-8 py-3 rounded-md font-medium text-sm hover:bg-gray-800 transition-colors shadow-lg" type="submit">
+              Generate KYC Document
+            </button>
+</div>
+</form>
+</section>
+<!-- END: Right Column -->
+</div>
+</main>
+<!-- END: Main Content -->
+</body></html>
