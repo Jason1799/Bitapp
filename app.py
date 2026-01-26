@@ -1581,7 +1581,7 @@ if active_page.lower() != "kyc":
                 file_name=download_payload["filename"],
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 use_container_width=True,
-                key="agreement_download",
+                key="agreement_download_btn",
             )
     
 
@@ -1678,5 +1678,5 @@ else:
                 file_name=download_payload["filename"],
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 use_container_width=True,
-                key="kyc_download",
+                key="kyc_download_btn",
             )
