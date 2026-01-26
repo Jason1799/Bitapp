@@ -839,8 +839,16 @@ def ensure_kyc_template(path: str) -> None:
     doc.save(path)
 
 
+# Save a docx document to bytes for download.
+def document_to_bytes(doc: Document) -> bytes:
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    return buffer.getvalue()
+
+
 # Fill KYC template with extracted data and images.
-def fill_kyc_document(template_path: str, output_path: str, data: dict[str, str], account_id: str, images) -> None:
+def fill_kyc_document(template_path: str, data: dict[str, str], account_id: str, images) -> bytes:
     doc = Document(template_path)
 
     for paragraph in doc.paragraphs:
@@ -864,7 +872,7 @@ def fill_kyc_document(template_path: str, output_path: str, data: dict[str, str]
                         run = cell.add_paragraph().add_run()
                         run.add_picture(BytesIO(image.getvalue()), width=Inches(3.4))
 
-    doc.save(output_path)
+    return document_to_bytes(doc)
 
 
 def normalize_amount_fields(amount: str, amount_in_words: str) -> tuple[str, str]:
@@ -1515,7 +1523,7 @@ if active_page.lower() != "kyc":
     
         st.markdown('<div class="subtle-divider"></div>', unsafe_allow_html=True)
         st.markdown('<div class="step-title">Step 4 · 生成文档</div>', unsafe_allow_html=True)
-        st.markdown('<div class="step-note">在本地 output 文件夹生成 Word 文档。</div>', unsafe_allow_html=True)
+        st.markdown('<div class="step-note">生成后可直接下载 Word 文档。</div>', unsafe_allow_html=True)
     
         if st.button("生成 Word 文档 (Generate)", use_container_width=True):
             state_values = {key: st.session_state.get(f"field_{key}", "") for key, _ in FIELDS}
@@ -1561,14 +1569,20 @@ if active_page.lower() != "kyc":
             safe_token = sanitize_filename_component(mapping.get("token", ""))
             token_prefix = f"{safe_token}-" if safe_token else ""
             filename = f"{token_prefix}{safe_company} - Agreement.docx"
-            output_dir = os.path.join(BASE_DIR, "output")
-            os.makedirs(output_dir, exist_ok=True)
-            output_path = os.path.join(output_dir, filename)
-            if os.path.exists(output_path):
-                timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-                output_path = os.path.join(output_dir, f"{safe_company} - Agreement - {timestamp}.docx")
-            doc.save(output_path)
-            st.success(f"Saved locally: {output_path}")
+            doc_bytes = document_to_bytes(doc)
+            st.session_state["agreement_download"] = {"filename": filename, "bytes": doc_bytes}
+            st.success("已生成文档，请下载。")
+
+        download_payload = st.session_state.get("agreement_download")
+        if download_payload:
+            st.download_button(
+                "下载 Word 文档",
+                data=download_payload["bytes"],
+                file_name=download_payload["filename"],
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                use_container_width=True,
+                key="agreement_download",
+            )
     
 
 else:
@@ -1649,14 +1663,20 @@ else:
             template_path = os.path.join(BASE_DIR, KYC_TEMPLATE_ORDERED)
             if not os.path.exists(template_path):
                 template_path = os.path.join(BASE_DIR, KYC_TEMPLATE_FILE)
-            output_dir = os.path.join(BASE_DIR, "output")
-            os.makedirs(output_dir, exist_ok=True)
             safe_name = sanitize_filename_component(data.get("name", "KYC")) or "KYC"
             filename = f"{safe_name} - KYC.docx"
-            output_path = os.path.join(output_dir, filename)
-            if os.path.exists(output_path):
-                timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-                output_path = os.path.join(output_dir, f"{safe_name} - KYC - {timestamp}.docx")
             images = st.session_state.get("kyc_files") or []
-            fill_kyc_document(template_path, output_path, data, account_id, images)
-            st.success(f"Saved locally: {output_path}")
+            doc_bytes = fill_kyc_document(template_path, data, account_id, images)
+            st.session_state["kyc_download"] = {"filename": filename, "bytes": doc_bytes}
+            st.success("已生成文档，请下载。")
+
+        download_payload = st.session_state.get("kyc_download")
+        if download_payload:
+            st.download_button(
+                "下载 KYC 文档",
+                data=download_payload["bytes"],
+                file_name=download_payload["filename"],
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                use_container_width=True,
+                key="kyc_download",
+            )
