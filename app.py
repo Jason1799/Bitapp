@@ -1658,6 +1658,11 @@ else:
         if st.session_state.get("kyc_account_id"):
             st.text_input("Account ID with BitMart", key="kyc_account_id")
 
+        if st.session_state.get("kyc_id_type"):
+            st.session_state["kyc_id_type"] = normalize_kyc_value(
+                "id_type", st.session_state.get("kyc_id_type", "")
+            )
+
         row1 = st.columns(3, gap="large")
         row1[0].text_input("Name", key="kyc_name")
         row1[1].text_input("Country", key="kyc_country")
@@ -1682,11 +1687,10 @@ else:
         row4[1].text_input("Submit IP", key="kyc_submit_ip")
         row4[2].text_input("IP Location", key="kyc_ip_location")
 
-        row5 = st.columns([2, 1], gap="large")
+        row5 = st.columns(3, gap="large")
         row5[0].text_input("Submit Device ID", key="kyc_device_id")
         row5[1].text_input("Device Type", key="kyc_device_type")
-
-        st.text_input("Verification Channel", key="kyc_channel")
+        row5[2].text_input("Verification Channel", key="kyc_channel")
 
         btn_spacer, btn_col = st.columns([5, 1])
         with btn_col:
