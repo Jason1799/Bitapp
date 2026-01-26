@@ -40,6 +40,22 @@ KYC_FIELDS = [
     ("channel", "Verification Channel"),
 ]
 
+KYC_LABEL_CANONICAL = {label.lower(): label for _key, label in KYC_FIELDS}
+KYC_TEMPLATE_LABEL_ALIASES = {
+    "身份": "ID Type",
+}
+
+def normalize_kyc_template_label(label: str) -> str:
+    cleaned = label.strip()
+    if not cleaned:
+        return cleaned
+    alias = KYC_TEMPLATE_LABEL_ALIASES.get(cleaned)
+    if not alias:
+        alias = KYC_TEMPLATE_LABEL_ALIASES.get(cleaned.lower())
+    if alias:
+        return alias
+    return KYC_LABEL_CANONICAL.get(cleaned.lower(), cleaned)
+
 KYC_LABELS = {
     "account_id": ["account id", "account id with bitmart", "cid"],
     "name": ["\u59d3\u540d", "name", "full name"],
@@ -714,6 +730,21 @@ def normalize_kyc_value(key: str, value: str) -> str:
             "\u662f",
         ] or lower in ["yes", "true", "expired", "invalid"]:
             return "Yes"
+    if key == "id_type":
+        lower = value.lower()
+        if "护照" in value or "passport" in lower:
+            return "Passport"
+        if "居民身份证" in value or "身份证" in value or "id card" in lower or "identity card" in lower:
+            return "ID Card"
+        if (
+            "居留" in value
+            or "resident identity" in lower
+            or "residence permit" in lower
+            or "residence card" in lower
+        ):
+            return "Resident Identity Card"
+        if "驾照" in value or "驾驶证" in value or "driver license" in lower or "driver's license" in lower:
+            return "Driver License"
     if key in ["id_expiry", "dob"]:
         formatted = parse_date_string(value)
         if not formatted:
@@ -860,7 +891,10 @@ def fill_kyc_document(template_path: str, data: dict[str, str], account_id: str,
     label_to_key = {label: key for key, label in KYC_FIELDS}
     for table in doc.tables:
         for row in table.rows:
-            label = row.cells[0].text.strip()
+            raw_label = row.cells[0].text.strip()
+            label = normalize_kyc_template_label(raw_label)
+            if label != raw_label:
+                row.cells[0].text = label
             if label in label_to_key:
                 key = label_to_key[label]
                 row.cells[1].text = data.get(key, "")
@@ -1658,7 +1692,12 @@ else:
         with btn_col:
             generate_clicked = st.button("Generate KYC Document", use_container_width=True, key="kyc_generate")
         if generate_clicked:
-            data = {key: st.session_state.get(f"kyc_{key}", "") for key, _label in KYC_FIELDS}
+            data = {}
+            for key, _label in KYC_FIELDS:
+                value = st.session_state.get(f"kyc_{key}", "")
+                if key == "id_type":
+                    value = normalize_kyc_value(key, value)
+                data[key] = value
             account_id = st.session_state.get("kyc_account_id", "")
             template_path = os.path.join(BASE_DIR, KYC_TEMPLATE_ORDERED)
             if not os.path.exists(template_path):
