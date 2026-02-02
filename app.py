@@ -37,7 +37,6 @@ KYC_FIELDS = [
     ("ip_location", "IP Location"),
     ("device_id", "Submit Device ID"),
     ("device_type", "Device Type"),
-    ("channel", "Verification Channel"),
 ]
 
 KYC_LABEL_CANONICAL = {label.lower(): label for _key, label in KYC_FIELDS}
@@ -752,12 +751,6 @@ def normalize_kyc_value(key: str, value: str) -> str:
             if match:
                 formatted = parse_date_string(match.group(1))
         return formatted if formatted else value
-    if key == "channel":
-        if value in ["-", "\u2014", "\u2013"]:
-            return "-"
-        if value in ["\u65e0", "\u4e0d\u9002\u7528"] or value.lower() in ["none", "n/a", "na"]:
-            return "-"
-        return value
     if key == "device_id":
         value = re.sub(r"^(id|device\s*id)\s*[:\uFF1A]\s*", "", value, flags=re.IGNORECASE)
     return value
@@ -860,13 +853,11 @@ def ensure_kyc_template(path: str) -> None:
     doc = Document()
     doc.add_paragraph("Account ID with BitMart:")
     doc.add_paragraph("1) KYC Info")
-    table = doc.add_table(rows=len(KYC_FIELDS) + 1, cols=2)
+    table = doc.add_table(rows=len(KYC_FIELDS), cols=2)
     table.style = "Table Grid"
     for idx, (_key, label) in enumerate(KYC_FIELDS):
         table.cell(idx, 0).text = label
         table.cell(idx, 1).text = ""
-    table.cell(len(KYC_FIELDS), 0).text = "KYC Pictures"
-    table.cell(len(KYC_FIELDS), 1).text = "See below:"
     doc.save(path)
 
 
@@ -876,6 +867,24 @@ def document_to_bytes(doc: Document) -> bytes:
     doc.save(buffer)
     buffer.seek(0)
     return buffer.getvalue()
+
+
+def remove_table_row(row) -> None:
+    row._tr.getparent().remove(row._tr)
+
+
+def append_kyc_images(doc: Document, images) -> None:
+    if not images:
+        return
+    title = doc.add_paragraph("KYC Pictures")
+    if title.runs:
+        title.runs[0].bold = True
+    title.paragraph_format.keep_with_next = True
+    for image in images:
+        paragraph = doc.add_paragraph()
+        paragraph.paragraph_format.keep_together = True
+        run = paragraph.add_run()
+        run.add_picture(BytesIO(image.getvalue()), width=Inches(3.4))
 
 
 # Fill KYC template with extracted data and images.
@@ -890,21 +899,23 @@ def fill_kyc_document(template_path: str, data: dict[str, str], account_id: str,
 
     label_to_key = {label: key for key, label in KYC_FIELDS}
     for table in doc.tables:
-        for row in table.rows:
+        for row in list(table.rows):
             raw_label = row.cells[0].text.strip()
             label = normalize_kyc_template_label(raw_label)
+            lower_label = label.strip().lower()
+            if lower_label.startswith("kyc picture"):
+                remove_table_row(row)
+                continue
+            if lower_label == "verification channel" or "\u8ba4\u8bc1\u6e20\u9053" in raw_label or "\u8ba4\u8bc1\u65b9\u5f0f" in raw_label:
+                remove_table_row(row)
+                continue
             if label != raw_label:
                 row.cells[0].text = label
             if label in label_to_key:
                 key = label_to_key[label]
                 row.cells[1].text = data.get(key, "")
-            elif label.lower().startswith("kyc pictures"):
-                cell = row.cells[1]
-                cell.text = "See below:" if images else ""
-                if images:
-                    for image in images:
-                        run = cell.add_paragraph().add_run()
-                        run.add_picture(BytesIO(image.getvalue()), width=Inches(3.4))
+
+    append_kyc_images(doc, images)
 
     return document_to_bytes(doc)
 
@@ -936,6 +947,16 @@ def update_amount_in_words() -> None:
     amount, amount_in_words = normalize_amount_fields(amount_raw, "")
     st.session_state["field_amount"] = amount
     st.session_state["field_amountInWords"] = amount_in_words
+
+
+def clear_kyc_form() -> None:
+    st.session_state["kyc_text"] = ""
+    st.session_state["kyc_account_id"] = ""
+    for key, _label in KYC_FIELDS:
+        st.session_state[f"kyc_{key}"] = ""
+    st.session_state["kyc_files"] = []
+    st.session_state["kyc_uploader_nonce"] = st.session_state.get("kyc_uploader_nonce", 0) + 1
+    st.session_state.pop("kyc_download", None)
 
 
 def replace_placeholders_in_paragraph(paragraph, mapping: dict[str, str]) -> None:
@@ -1418,6 +1439,10 @@ if "kyc_text" not in st.session_state:
     st.session_state.kyc_text = ""
 if "kyc_account_id" not in st.session_state:
     st.session_state.kyc_account_id = ""
+if "kyc_files" not in st.session_state:
+    st.session_state.kyc_files = []
+if "kyc_uploader_nonce" not in st.session_state:
+    st.session_state.kyc_uploader_nonce = 0
 for key, _label in KYC_FIELDS:
     kyc_key = f"kyc_{key}"
     if kyc_key not in st.session_state:
@@ -1632,13 +1657,15 @@ else:
             label_visibility="collapsed",
         )
         st.markdown('<div class="kyc-upload">', unsafe_allow_html=True)
-        st.file_uploader(
+        kyc_uploader_key = f"kyc_files_uploader_{st.session_state.get('kyc_uploader_nonce', 0)}"
+        uploaded_images = st.file_uploader(
             "KYC Pictures",
             type=["png", "jpg", "jpeg"],
             accept_multiple_files=True,
-            key="kyc_files",
+            key=kyc_uploader_key,
             label_visibility="collapsed",
         )
+        st.session_state["kyc_files"] = uploaded_images or []
         st.markdown("</div>", unsafe_allow_html=True)
 
         if st.button("Analyze", use_container_width=True, key="kyc_analyze"):
@@ -1687,14 +1714,21 @@ else:
         row4[1].text_input("Submit IP", key="kyc_submit_ip")
         row4[2].text_input("IP Location", key="kyc_ip_location")
 
-        row5 = st.columns(3, gap="large")
+        row5 = st.columns(2, gap="large")
         row5[0].text_input("Submit Device ID", key="kyc_device_id")
         row5[1].text_input("Device Type", key="kyc_device_type")
-        row5[2].text_input("Verification Channel", key="kyc_channel")
 
-        btn_spacer, btn_col = st.columns([5, 1])
+        btn_spacer, clear_col, btn_col = st.columns([4, 1, 1])
+        with clear_col:
+            clear_clicked = st.button("一键清空", use_container_width=True, key="kyc_clear")
         with btn_col:
             generate_clicked = st.button("Generate KYC Document", use_container_width=True, key="kyc_generate")
+        if clear_clicked:
+            clear_kyc_form()
+            if hasattr(st, "rerun"):
+                st.rerun()
+            else:
+                st.experimental_rerun()
         if generate_clicked:
             data = {}
             for key, _label in KYC_FIELDS:
