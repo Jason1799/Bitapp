@@ -1679,6 +1679,12 @@ else:
                 st.warning("未识别到KYC字段，请检查输入格式。")
             else:
                 st.success(f"已识别 {len(kyc_parsed)} 项 KYC 信息。")
+        st.button(
+            "一键清空",
+            use_container_width=True,
+            key="kyc_clear",
+            on_click=clear_kyc_form,
+        )
 
     with kyc_right:
         st.markdown('<div class="kyc-title">KYC Data Fields</div>', unsafe_allow_html=True)
@@ -1718,14 +1724,7 @@ else:
         row5[0].text_input("Submit Device ID", key="kyc_device_id")
         row5[1].text_input("Device Type", key="kyc_device_type")
 
-        btn_spacer, clear_col, btn_col = st.columns([4, 1, 1])
-        with clear_col:
-            st.button(
-                "一键清空",
-                use_container_width=True,
-                key="kyc_clear",
-                on_click=clear_kyc_form,
-            )
+        btn_spacer, btn_col = st.columns([5, 1])
         with btn_col:
             generate_clicked = st.button("Generate KYC Document", use_container_width=True, key="kyc_generate")
         if generate_clicked:
