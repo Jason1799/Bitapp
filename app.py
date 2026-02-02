@@ -1720,15 +1720,14 @@ else:
 
         btn_spacer, clear_col, btn_col = st.columns([4, 1, 1])
         with clear_col:
-            clear_clicked = st.button("一键清空", use_container_width=True, key="kyc_clear")
+            st.button(
+                "一键清空",
+                use_container_width=True,
+                key="kyc_clear",
+                on_click=clear_kyc_form,
+            )
         with btn_col:
             generate_clicked = st.button("Generate KYC Document", use_container_width=True, key="kyc_generate")
-        if clear_clicked:
-            clear_kyc_form()
-            if hasattr(st, "rerun"):
-                st.rerun()
-            else:
-                st.experimental_rerun()
         if generate_clicked:
             data = {}
             for key, _label in KYC_FIELDS:
