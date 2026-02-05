@@ -1641,31 +1641,32 @@ if active_page.lower() != "kyc":
             unsafe_allow_html=True,
         )
     
-        left_form, right_form = st.columns(2)
-        for idx, (key, label) in enumerate(FIELDS):
-            target = left_form if idx % 2 == 0 else right_form
-            with target:
-                if key == "amount":
-                    st.text_input(
-                        label,
-                        key="field_amount",
-                        on_change=update_amount_in_words,
-                        disabled=(
-                            st.session_state.selected_template == "Company Waive"
-                            and not st.session_state.include_technical_fee
-                        ),
-                    )
-                elif key == "amountInWords":
-                    st.text_input(
-                        label,
-                        key="field_amountInWords",
-                        disabled=(
-                            st.session_state.selected_template == "Company Waive"
-                            and not st.session_state.include_technical_fee
-                        ),
-                    )
-                else:
-                    st.text_input(label, key=f"field_{key}")
+        for row_start in range(0, len(FIELDS), 3):
+            row_fields = FIELDS[row_start : row_start + 3]
+            row_columns = st.columns(3, gap="large")
+            for column, (key, label) in zip(row_columns, row_fields):
+                with column:
+                    if key == "amount":
+                        st.text_input(
+                            label,
+                            key="field_amount",
+                            on_change=update_amount_in_words,
+                            disabled=(
+                                st.session_state.selected_template == "Company Waive"
+                                and not st.session_state.include_technical_fee
+                            ),
+                        )
+                    elif key == "amountInWords":
+                        st.text_input(
+                            label,
+                            key="field_amountInWords",
+                            disabled=(
+                                st.session_state.selected_template == "Company Waive"
+                                and not st.session_state.include_technical_fee
+                            ),
+                        )
+                    else:
+                        st.text_input(label, key=f"field_{key}")
     
         st.text_area(
             "钱包地址 Wallets",
