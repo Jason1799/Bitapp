@@ -1613,10 +1613,11 @@ if active_page.lower() != "kyc":
             unsafe_allow_html=True,
         )
         template_choice = st.radio(
-            "Select Template",
+            "",
             list(TEMPLATE_FILES.keys()),
             index=list(TEMPLATE_FILES.keys()).index(st.session_state.selected_template),
             horizontal=True,
+            label_visibility="collapsed",
         )
         st.session_state.selected_template = template_choice
         if st.session_state.selected_template == "Company Waive":
