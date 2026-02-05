@@ -1564,7 +1564,7 @@ st.markdown('<div class="header-divider"></div>', unsafe_allow_html=True)
 active_page = st.session_state.get("active_page", "Listing Agreement")
 
 if active_page.lower() != "kyc":
-    col_left, col_right = st.columns([1, 1.3], gap="large")
+    col_left, col_right = st.columns([3, 7], gap="large")
     
     with col_left:
         st.markdown('<div class="step-title">Step 1 · 邮件输入</div>', unsafe_allow_html=True)
