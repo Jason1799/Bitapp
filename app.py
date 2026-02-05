@@ -1267,13 +1267,17 @@ h1, h2, h3 {
     width: auto;
 }
 
-#top-nav-anchor + div[data-testid="stRadio"] {
+#top-nav-anchor + div[data-testid="stRadio"],
+#top-nav-anchor ~ div[data-testid="stRadio"],
+div.st-key-active_page div[data-testid="stRadio"] {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-#top-nav-anchor + div[data-testid="stRadio"] > div {
+#top-nav-anchor + div[data-testid="stRadio"] > div,
+#top-nav-anchor ~ div[data-testid="stRadio"] > div,
+div.st-key-active_page div[data-testid="stRadio"] > div {
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
@@ -1281,45 +1285,76 @@ h1, h2, h3 {
     box-shadow: none !important;
 }
 
-#top-nav-anchor + div[data-testid="stRadio"] div[role="radiogroup"] {
+#top-nav-anchor + div[data-testid="stRadio"] div[role="radiogroup"],
+#top-nav-anchor ~ div[data-testid="stRadio"] div[role="radiogroup"],
+div.st-key-active_page div[data-testid="stRadio"] div[role="radiogroup"] {
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    gap: 28px;
+    gap: 36px;
     width: fit-content;
     max-width: 100%;
     margin: 0 auto;
     flex-wrap: wrap;
 }
 
-#top-nav-anchor + div[data-testid="stRadio"] label {
+#top-nav-anchor + div[data-testid="stRadio"] label,
+#top-nav-anchor ~ div[data-testid="stRadio"] label,
+div.st-key-active_page div[data-testid="stRadio"] label {
     margin-right: 0;
     flex: 0 0 auto;
 }
 
-#top-nav-anchor + div[data-testid="stRadio"] input[type="radio"] {
+#top-nav-anchor + div[data-testid="stRadio"] input[type="radio"],
+#top-nav-anchor ~ div[data-testid="stRadio"] input[type="radio"],
+div.st-key-active_page div[data-testid="stRadio"] input[type="radio"] {
     display: none !important;
 }
 
-#top-nav-anchor + div[data-testid="stRadio"] label > div {
+#top-nav-anchor + div[data-testid="stRadio"] label > div,
+#top-nav-anchor ~ div[data-testid="stRadio"] label > div,
+div.st-key-active_page div[data-testid="stRadio"] label > div {
     background: transparent;
     border: none;
     color: var(--muted);
-    font-weight: 500;
-    padding: 0 0 12px 0;
-    border-bottom: 2px solid transparent;
-    font-size: 14px;
+    font-weight: 700;
+    padding: 2px 0 13px 0;
+    border-bottom: 3px solid transparent;
+    font-size: 20px;
+    line-height: 1.2;
 }
 
-#top-nav-anchor + div[data-testid="stRadio"] label > input:checked + div {
+#top-nav-anchor + div[data-testid="stRadio"] label > input:checked + div,
+#top-nav-anchor ~ div[data-testid="stRadio"] label > input:checked + div,
+div.st-key-active_page div[data-testid="stRadio"] label > input:checked + div {
     color: var(--text);
-    font-weight: 700;
-    border-bottom: 3px solid var(--text);
+    font-weight: 800;
+    border-bottom: 4px solid var(--text);
 }
 
 @media (max-width: 1024px) {
-    #top-nav-anchor + div[data-testid="stRadio"] div[role="radiogroup"] {
+    #top-nav-anchor + div[data-testid="stRadio"] div[role="radiogroup"],
+    #top-nav-anchor ~ div[data-testid="stRadio"] div[role="radiogroup"],
+    div.st-key-active_page div[data-testid="stRadio"] div[role="radiogroup"] {
+        gap: 22px;
+    }
+    #top-nav-anchor + div[data-testid="stRadio"] label > div,
+    #top-nav-anchor ~ div[data-testid="stRadio"] label > div,
+    div.st-key-active_page div[data-testid="stRadio"] label > div {
+        font-size: 17px;
+    }
+}
+
+@media (max-width: 640px) {
+    #top-nav-anchor + div[data-testid="stRadio"] div[role="radiogroup"],
+    #top-nav-anchor ~ div[data-testid="stRadio"] div[role="radiogroup"],
+    div.st-key-active_page div[data-testid="stRadio"] div[role="radiogroup"] {
         gap: 16px;
+    }
+    #top-nav-anchor + div[data-testid="stRadio"] label > div,
+    #top-nav-anchor ~ div[data-testid="stRadio"] label > div,
+    div.st-key-active_page div[data-testid="stRadio"] label > div {
+        font-size: 15px;
     }
 }
 
@@ -1490,7 +1525,7 @@ for key, _label in FIELDS:
 if "active_page" not in st.session_state:
     st.session_state.active_page = "Listing Agreement"
 
-header_left, header_center, header_right = st.columns([1.2, 4.6, 1.2], gap="small")
+header_left, header_center, header_right = st.columns([1, 6, 1], gap="small")
 with header_left:
     st.markdown(
         """
