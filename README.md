@@ -1,7 +1,7 @@
 # Bitapp
 
 简要说明：这是你的项目 `Bitapp`，包含一个示例 Python 应用程序。
-11
+
 ## 依赖
 - Python 3.8+
 - 见 `requirements.txt`（示例：`streamlit`, `python-docx`）
