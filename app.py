@@ -1388,6 +1388,19 @@ div.st-key-active_page div[data-testid="stRadio"] label > input:checked + div {
     margin-bottom: 8px;
 }
 
+.step-title-note-inline {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 6px 0 8px 0;
+}
+
+.step-title-note-inline .step-title,
+.step-title-note-inline .step-note {
+    margin: 0;
+}
+
 div[data-testid="stTextInput"] input {
     background: #ffffff;
     border: 1px solid #d1d5db;
@@ -1567,8 +1580,10 @@ if active_page.lower() != "kyc":
     col_left, col_right = st.columns([3, 7], gap="large")
     
     with col_left:
-        st.markdown('<div class="step-title">Step 1 · 邮件输入</div>', unsafe_allow_html=True)
-        st.markdown('<div class="step-note">粘贴邮件内容，自动识别并填充字段。</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="step-title-note-inline"><span class="step-title">Step 1 · 邮件输入</span><span class="step-note">-粘贴邮件内容，自动识别并填充字段。</span></div>',
+            unsafe_allow_html=True,
+        )
         email_text = st.text_area("", height=800, key="email_text", placeholder="在此粘贴邮件内容...")
         if st.button("提取信息 (Analyze)", use_container_width=True):
             parsed = extract_fields(email_text)
@@ -1593,8 +1608,10 @@ if active_page.lower() != "kyc":
             st.session_state.wallet_text = wallets_to_text(st.session_state.wallets)
     
     with col_right:
-        st.markdown('<div class="step-title">Step 2 · 选择模板</div>', unsafe_allow_html=True)
-        st.markdown('<div class="step-note">Company 或 Company Waive 模板。</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="step-title-note-inline"><span class="step-title">Step 2 · 选择模板</span><span class="step-note">-Company 或 Company Waive 模板。</span></div>',
+            unsafe_allow_html=True,
+        )
         template_choice = st.radio(
             "Select Template",
             list(TEMPLATE_FILES.keys()),
@@ -1618,8 +1635,10 @@ if active_page.lower() != "kyc":
             st.session_state.include_technical_fee = True
     
         st.markdown('<div class="subtle-divider"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="step-title">Step 3 · 人工核对</div>', unsafe_allow_html=True)
-        st.markdown('<div class="step-note">补全或修改必填字段。</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="step-title-note-inline"><span class="step-title">Step 3 · 人工核对</span><span class="step-note">-补全或修改必填字段。</span></div>',
+            unsafe_allow_html=True,
+        )
     
         left_form, right_form = st.columns(2)
         for idx, (key, label) in enumerate(FIELDS):
