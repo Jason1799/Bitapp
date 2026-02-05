@@ -1207,6 +1207,18 @@ st.markdown(
     --muted: #6b7280;
     --border: #e5e7eb;
     --input-bg: #f3f4f6;
+    color-scheme: light;
+}
+
+html, body, .stApp, [data-testid="stApp"], [data-testid="stAppViewContainer"] {
+    background: #ffffff !important;
+    color-scheme: light !important;
+}
+
+input, textarea, select,
+div[data-baseweb="input"] input,
+div[data-baseweb="select"] input {
+    color-scheme: light !important;
 }
 
 html, body, [class*="css"]  {
@@ -1257,21 +1269,32 @@ h1, h2, h3 {
 
 #top-nav-anchor + div[data-testid="stRadio"] {
     width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 #top-nav-anchor + div[data-testid="stRadio"] > div {
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
-    display: flex !important;
+    width: 100%;
+    box-shadow: none !important;
+}
+
+#top-nav-anchor + div[data-testid="stRadio"] div[role="radiogroup"] {
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
     gap: 28px;
-    box-shadow: none !important;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
+    flex-wrap: wrap;
 }
 
 #top-nav-anchor + div[data-testid="stRadio"] label {
     margin-right: 0;
+    flex: 0 0 auto;
 }
 
 #top-nav-anchor + div[data-testid="stRadio"] input[type="radio"] {
@@ -1292,6 +1315,12 @@ h1, h2, h3 {
     color: var(--text);
     font-weight: 700;
     border-bottom: 3px solid var(--text);
+}
+
+@media (max-width: 1024px) {
+    #top-nav-anchor + div[data-testid="stRadio"] div[role="radiogroup"] {
+        gap: 16px;
+    }
 }
 
 .header-divider {
@@ -1461,7 +1490,7 @@ for key, _label in FIELDS:
 if "active_page" not in st.session_state:
     st.session_state.active_page = "Listing Agreement"
 
-header_left, header_center, header_right = st.columns([1, 3, 1], gap="small")
+header_left, header_center, header_right = st.columns([1.2, 4.6, 1.2], gap="small")
 with header_left:
     st.markdown(
         """
