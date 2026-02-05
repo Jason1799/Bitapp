@@ -133,40 +133,18 @@ KYC_LABELS = {
 }
 
 FIELDS = [
-    ("jira_review_link", "Jira review link (不在合同)"),
-    ("project_full_name", "Project full name (不在合同)"),
-    ("company_registration_document", "Company registration document (不在合同)"),
-    ("company", "Company name"),
-    ("address", "Registered address"),
-    ("name1", "Signer full name"),
-    ("signer_title", "Signer title"),
-    ("signer_email", "Signer e-mail (不在合同)"),
-    ("token", "Ticker name"),
-    ("open_trading_pair", "Open trading pair"),
-    ("listing", "Listing date"),
-    ("amount", "Listing fee"),
-    ("payment_address", "Payment address"),
-    ("mm_deposit", "MM deposit"),
-    ("special_requirement", "Special requirement (不在合同)"),
+    ("company", "company 名称"),
+    ("Jurisdiction", "Jurisdiction 管辖地/国"),
+    ("address", "address 公司地址"),
+    ("date", "合同签署date"),
+    ("listing", "listing 上市日"),
+    ("token", "token 代币名称"),
+    ("amount", "number 数字"),
+    ("amountInWords", "money 上市费英文大写"),
+    ("name1", "签署人 1"),
 ]
 
 FIELD_PATTERNS = {
-    "jira_review_link": [
-        r"jira\s*review\s*link\s*[:：]\s*(.+)",
-        r"jira\s*link\s*[:：]\s*(.+)",
-        r"(https?://[^\s]*atlassian\.net/browse/[A-Z]+-\d+)",
-    ],
-    "project_full_name": [
-        r"project\s*full\s*name\s*[:：]\s*(.+)",
-        r"project\s*name\s*[:：]\s*(.+)",
-        r"listing\s*agreement.*?\bfor\s+(.+?)\s*[-–—:]\s*details",
-    ],
-    "company_registration_document": [
-        r"company\s*registration\s*document\s*[:：]\s*(.+)",
-        r"registration\s*document\s*[:：]\s*(.+)",
-        r"\b(coi\s+is\s+attached)\b",
-        r"\b(certificate\s+of\s+incorporation\s+.*attached)\b",
-    ],
     "company": [
         r"company\s*名称\s*[:：]\s*(.+)",
         r"company\s*name\s*[:：]\s*(.+)",
@@ -175,26 +153,6 @@ FIELD_PATTERNS = {
         r"company\s*nm\s*[:：]\s*(.+)",
         r"company\s*[:：]\s*(.+)",
         r"公司名称\s*[:：]\s*(.+)",
-    ],
-    "name1": [
-        r"签署人\s*1\s*[:：]\s*(.+)",
-        r"signer\s*full\s*name\s*[:：]\s*(.+)",
-        r"signer\s*name\s*[:：]\s*(.+)",
-        r"full\s*legal\s*name\s*[:：]\s*(.+)",
-        r"^\s*name\s*[:：]\s*(.+)",
-        r"signer\s*[:：]\s*(.+)",
-        r"name1\s*[:：]\s*(.+)",
-    ],
-    "signer_title": [
-        r"signer\s*title\s*[:：]\s*(.+)",
-        r"title\s*[:：]\s*(.+)",
-        r"position\s*[:：]\s*(.+)",
-    ],
-    "signer_email": [
-        r"signer\s*e-?mail\s*[:：]\s*(.+)",
-        r"email\s*[:：]\s*(.+)",
-        r"e-?mail\s*[:：]\s*(.+)",
-        r"([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})",
     ],
     "Jurisdiction": [
         r"Jurisdiction\s*管辖地/国\s*[:：]\s*(.+)",
@@ -214,12 +172,12 @@ FIELD_PATTERNS = {
         r"合同签署date\s*[:：]\s*(.+)",
         r"agreement\s*date\s*[:：]\s*(.+)",
         r"signing\s*date\s*[:：]\s*(.+)",
+        r"date\s*[:：]\s*(.+)",
     ],
     "listing": [
         r"上市日\s*[:：]\s*(.+)",
         r"listing\s*date\s*[:：]\s*(.+)",
         r"latest\s*listing\s*date\s*[:：]\s*(.+)",
-        r"lastest\s*listing\s*date\s*[:：]\s*(.+)",
         r"listing\s*day\s*[:：]\s*(.+)",
         r"listing\s*time\s*[:：]\s*(.+)",
         r"list\s*date\s*[:：]\s*(.+)",
@@ -228,13 +186,7 @@ FIELD_PATTERNS = {
         r"上线日期\s*[:：]\s*(.+)",
         r"listing\s*[:：]\s*(.+)",
     ],
-    "open_trading_pair": [
-        r"open\s*trading\s*pair\s*[:：]\s*([A-Z0-9]{2,20}\s*/\s*[A-Z0-9]{2,20})",
-        r"trading\s*pair\s*[:：]\s*([A-Z0-9]{2,20}\s*/\s*[A-Z0-9]{2,20})",
-        r"pair\s*[:：]\s*([A-Z0-9]{2,20}\s*/\s*[A-Z0-9]{2,20})",
-    ],
     "token": [
-        r"ticker\s*name\s*[:：]\s*(.+)",
         r"token\s*代币名称\s*[:：]\s*(.+)",
         r"token\s*ticker\s*[:：]\s*(.+)",
         r"ticker\s*[:：]\s*(.+)",
@@ -246,30 +198,21 @@ FIELD_PATTERNS = {
     ],
     "amount": [
         r"number\s*数字\s*[:：]\s*(.+)",
-        r"listing\s*fee\s*[:：]\s*(.+)",
-        r"payment\s*information\s*and\s*details\s*[:：]\s*(.+)",
-        r"payment\s*details\s*[:：]\s*(.+)",
         r"amount\s*[:：]\s*(.+)",
+        r"listing\s*fee\s*[:：]\s*(.+)",
         r"金额\s*[:：]\s*(.+)",
-    ],
-    "payment_address": [
-        r"payment\s*address\s*[:：]\s*(.+)",
-        r"payment\s*wallet\s*[:：]\s*(.+)",
-        r"wallet\s*address\s*[:：]\s*(.+)",
-    ],
-    "mm_deposit": [
-        r"mm\s*deposit\s*[:：]\s*(.+)",
-        r"mm\s*demand\s*[:：]\s*(.+)",
-        r"market\s*maker\s*deposit\s*[:：]\s*(.+)",
-    ],
-    "special_requirement": [
-        r"special\s*requirement[s]?\s*[:：]\s*(.+)",
-        r"special\s*request[s]?\s*[:：]\s*(.+)",
     ],
     "amountInWords": [
         r"money\s*上市费英文大写\s*[:：]\s*(.+)",
         r"amountinwords\s*[:：]\s*(.+)",
         r"英文大写\s*[:：]\s*(.+)",
+    ],
+    "name1": [
+        r"签署人\s*1\s*[:：]\s*(.+)",
+        r"signer\s*name\s*[:：]\s*(.+)",
+        r"full\s*legal\s*name\s*[:：]\s*(.+)",
+        r"signer\s*[:：]\s*(.+)",
+        r"name1\s*[:：]\s*(.+)",
     ],
 }
 
@@ -294,9 +237,6 @@ COMPACT_AMOUNT_RE = re.compile(r"(?<!\w)(\d+(?:\.\d+)?)\s*([kKmM])")
 ETH_ADDRESS_RE = re.compile(r"\b0x[a-fA-F0-9]{40}\b")
 TRON_ADDRESS_RE = re.compile(r"\bT[1-9A-HJ-NP-Za-km-z]{33}\b")
 SOL_ADDRESS_RE = re.compile(r"\b[1-9A-HJ-NP-Za-km-z]{32,44}\b")
-EMAIL_RE = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
-JIRA_URL_RE = re.compile(r"https?://[^\s]*atlassian\.net/browse/[A-Z]+-\d+", flags=re.IGNORECASE)
-URL_RE = re.compile(r"https?://\S+", flags=re.IGNORECASE)
 
 ONES = [
     "ZERO",
@@ -416,7 +356,6 @@ def clean_line(line: str) -> str:
     line = line.strip()
     if line in {"-", "\u2014", "\u2013"}:
         return line
-    line = line.replace("\uFF1A", ":").replace("\uFE55", ":").replace("\u2236", ":")
     line = re.sub(r"^(?:[-\u2013\u2014]\s+|[\u2022\u00b7]\s+)", "", line)
     return line.strip()
 
@@ -449,11 +388,7 @@ def extract_amount_and_words(lines: list[str]) -> tuple[str, str]:
     words = ""
     for line in lines:
         upper = line.upper()
-        if re.search(
-            r"number\s*数字|amount\s*[:：]|金额\s*[:：]|listing\s*fee|payment\s*information\s*and\s*details|payment\s*details",
-            line,
-            flags=re.IGNORECASE,
-        ):
+        if re.search(r"number\s*数字|amount\s*[:：]|金额\s*[:：]|listing\s*fee", line, flags=re.IGNORECASE):
             candidate = find_amount_candidate(line)
             if candidate:
                 amount = candidate
@@ -488,25 +423,10 @@ def format_date(dt: datetime) -> str:
     return f"{dt.strftime('%B')} {dt.day}, {dt.year}"
 
 
-def extract_date_token(value: str) -> str:
-    numeric_match = re.search(r"\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b", value)
-    if numeric_match:
-        return numeric_match.group(0)
-    month_match = re.search(
-        r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*[ .-]+\d{1,2}(?:,\s*|\s+)\d{2,4}\b",
-        value,
-        flags=re.IGNORECASE,
-    )
-    if month_match:
-        return month_match.group(0)
-    return ""
-
-
 def parse_date_string(value: str) -> str:
     value = value.strip()
     if not value:
         return value
-    value = URL_RE.sub("", value).strip()
     # Extract date portion from phrases like "Before Oct 30" / "by Oct 30".
     match = re.search(r"\b(before|by|on or before)\b\s*(.+)$", value, flags=re.IGNORECASE)
     if match:
@@ -514,9 +434,6 @@ def parse_date_string(value: str) -> str:
     value = re.sub(r"\b([A-Za-z]{3})\.\b", r"\1", value)
     value = re.sub(r"(\d{1,2})(st|nd|rd|th)\b", r"\1", value, flags=re.IGNORECASE)
     value = re.sub(r"\s+", " ", value).strip()
-    date_token = extract_date_token(value)
-    if date_token:
-        value = date_token
     # If the date has no year (e.g., "Oct 30"), append current year.
     if not re.search(r"\b\d{4}\b", value):
         value = f"{value} {datetime.today().year}"
@@ -646,160 +563,6 @@ def extract_signer_name(lines: list[str]) -> str:
                 j += 1
     return ""
 
-
-def extract_signer_title(lines: list[str]) -> str:
-    for idx, line in enumerate(lines):
-        match = re.match(r"(signer\s*title|title|position)\s*[:\uFF1A]\s*(.*)", line, flags=re.IGNORECASE)
-        if match:
-            value = match.group(2).strip()
-            if value:
-                return value
-            j = idx + 1
-            while j < len(lines):
-                candidate = lines[j].strip()
-                if candidate:
-                    return candidate
-                j += 1
-    return ""
-
-
-def extract_signer_email(lines: list[str]) -> str:
-    for line in lines:
-        if re.search(r"(signer\s*e-?mail|email|e-?mail)\s*[:\uFF1A]?", line, flags=re.IGNORECASE):
-            match = EMAIL_RE.search(line)
-            if match:
-                return match.group(0)
-            value = re.sub(r"^(signer\s*e-?mail|email|e-?mail)\s*[:\uFF1A]\s*", "", line, flags=re.IGNORECASE).strip()
-            if value:
-                return value
-    for line in lines:
-        match = EMAIL_RE.search(line)
-        if match:
-            return match.group(0)
-    return ""
-
-
-def normalize_trading_pair(value: str) -> str:
-    value = value.strip()
-    if not value:
-        return ""
-    pair_match = re.search(r"\b([A-Z0-9]{2,20})\s*/\s*([A-Z0-9]{2,20})\b", value, flags=re.IGNORECASE)
-    if not pair_match:
-        return value
-    base = pair_match.group(1).upper()
-    quote = pair_match.group(2).upper()
-    return f"{base}/{quote}"
-
-
-def extract_open_trading_pair(lines: list[str]) -> str:
-    for line in lines:
-        match = re.search(
-            r"(open\s*trading\s*pair|trading\s*pair|pair)\s*[:\uFF1A]?\s*([A-Z0-9]{2,20}\s*/\s*[A-Z0-9]{2,20})",
-            line,
-            flags=re.IGNORECASE,
-        )
-        if match:
-            return normalize_trading_pair(match.group(2))
-    for line in lines:
-        if "http://" in line.lower() or "https://" in line.lower():
-            continue
-        pair_match = re.search(r"\b([A-Z0-9]{2,20}\s*/\s*[A-Z0-9]{2,20})\b", line, flags=re.IGNORECASE)
-        if pair_match:
-            return normalize_trading_pair(pair_match.group(1))
-    return ""
-
-
-def extract_jira_review_link(lines: list[str], text: str) -> str:
-    for line in lines:
-        if re.search(r"jira", line, flags=re.IGNORECASE):
-            jira_match = JIRA_URL_RE.search(line)
-            if jira_match:
-                return jira_match.group(0).rstrip(").,;")
-            url_match = URL_RE.search(line)
-            if url_match:
-                return url_match.group(0).rstrip(").,;")
-    jira_match = JIRA_URL_RE.search(text)
-    if jira_match:
-        return jira_match.group(0).rstrip(").,;")
-    return ""
-
-
-def extract_project_full_name(lines: list[str]) -> str:
-    for line in lines:
-        match = re.search(r"project\s*full\s*name\s*[:\uFF1A]\s*(.+)", line, flags=re.IGNORECASE)
-        if match:
-            return match.group(1).strip()
-    for line in lines:
-        match = re.search(
-            r"listing\s*agreement.*?\bfor\s+(.+?)\s*[-\u2013\u2014:]\s*details",
-            line,
-            flags=re.IGNORECASE,
-        )
-        if match:
-            return match.group(1).strip()
-    return ""
-
-
-def infer_company_registration_document(lines: list[str], raw_text: str) -> str:
-    for line in lines:
-        if re.search(
-            r"\b(coi|certificate\s*of\s*incorporation|company\s*registration\s*document|business\s*registration)\b",
-            line,
-            flags=re.IGNORECASE,
-        ):
-            if re.search(r"\b(attached|attach|provided|uploaded)\b", line, flags=re.IGNORECASE):
-                return line.strip()
-            match = re.match(
-                r"(company\s*registration\s*document|registration\s*document|coi)\s*[:\uFF1A]\s*(.+)",
-                line,
-                flags=re.IGNORECASE,
-            )
-            if match:
-                return match.group(2).strip()
-    if re.search(r"\bcoi\b", raw_text, flags=re.IGNORECASE) and re.search(
-        r"\b(attached|attach|provided|uploaded)\b", raw_text, flags=re.IGNORECASE
-    ):
-        return "COI attached"
-    return ""
-
-
-def extract_first_crypto_address(value: str) -> str:
-    for regex in (ETH_ADDRESS_RE, TRON_ADDRESS_RE, SOL_ADDRESS_RE):
-        match = regex.search(value)
-        if match:
-            return match.group(0)
-    return ""
-
-
-def extract_payment_address(lines: list[str], text: str) -> str:
-    for line in lines:
-        if re.search(r"(payment\s*address|payment\s*wallet|wallet\s*address)", line, flags=re.IGNORECASE):
-            address = extract_first_crypto_address(line)
-            if address:
-                return address
-            match = re.match(
-                r"(payment\s*address|payment\s*wallet|wallet\s*address)\s*[:\uFF1A]\s*(.+)",
-                line,
-                flags=re.IGNORECASE,
-            )
-            if match:
-                candidate = match.group(2).strip()
-                if candidate:
-                    return candidate
-    for regex in (ETH_ADDRESS_RE, TRON_ADDRESS_RE, SOL_ADDRESS_RE):
-        match = regex.search(text)
-        if match:
-            return match.group(0)
-    return ""
-
-
-def normalize_special_requirement(value: str) -> str:
-    value = value.strip()
-    if not value:
-        return ""
-    return re.sub(r"^[-\u2013\u2014]\s*", "", value).strip()
-
-
 def infer_jurisdiction(address: str, lines: list[str]) -> str:
     if address:
         lower_addr = address.lower()
@@ -824,26 +587,17 @@ def extract_fields(text: str) -> dict:
         if value:
             result[key] = value
 
-    open_pair = normalize_trading_pair(result.get("open_trading_pair", ""))
-    if not open_pair:
-        open_pair = extract_open_trading_pair(lines)
-    if open_pair:
-        result["open_trading_pair"] = open_pair
-
     if not result.get("token"):
-        if open_pair and "/" in open_pair:
-            result["token"] = open_pair.split("/", 1)[0].strip().upper()
-        else:
-            pair_match = None
-            for line in lines:
-                pair_match = re.search(
-                    r"(pair|trading\s*pair|open\s*trading\s*pair|币对)\s*[:：]?\s*([A-Z0-9]{2,12})\s*/\s*([A-Z0-9]{2,12})",
-                    line,
-                    flags=re.IGNORECASE,
-                )
-                if pair_match:
-                    result["token"] = pair_match.group(2).upper()
-                    break
+        pair_match = None
+        for line in lines:
+            pair_match = re.search(
+                r"(pair|trading\s*pair|open\s*trading\s*pair|币对)\s*[:：]?\s*([A-Z0-9]{2,12})\s*/\s*([A-Z0-9]{2,12})",
+                line,
+                flags=re.IGNORECASE,
+            )
+            if pair_match:
+                result["token"] = pair_match.group(2).upper()
+                break
 
     address = extract_registered_address(lines)
     if address:
@@ -859,67 +613,11 @@ def extract_fields(text: str) -> dict:
     elif result.get("name1"):
         result["name1"] = clean_signer_name(result["name1"])
 
-    if not result.get("signer_title"):
-        signer_title = extract_signer_title(lines)
-        if signer_title:
-            result["signer_title"] = signer_title
-
-    signer_email = extract_signer_email(lines)
-    if signer_email and not result.get("signer_email"):
-        result["signer_email"] = signer_email
-    elif result.get("signer_email"):
-        email_match = EMAIL_RE.search(result["signer_email"])
-        if email_match:
-            result["signer_email"] = email_match.group(0)
-
-    if not result.get("jira_review_link"):
-        jira_link = extract_jira_review_link(lines, text)
-        if jira_link:
-            result["jira_review_link"] = jira_link
-
-    if not result.get("project_full_name"):
-        project_full_name = extract_project_full_name(lines)
-        if project_full_name:
-            result["project_full_name"] = project_full_name
-        elif result.get("token"):
-            token = result["token"].strip().upper()
-            if token:
-                result["project_full_name"] = f"{token} ({token})"
-
-    if not result.get("company_registration_document"):
-        registration_doc = infer_company_registration_document(lines, text)
-        if registration_doc:
-            result["company_registration_document"] = registration_doc
-
     amount, words = extract_amount_and_words(lines)
     if amount:
         result["amount"] = amount
     if words:
         result["amountInWords"] = words
-
-    if not result.get("payment_address"):
-        payment_address = extract_payment_address(lines, text)
-        if payment_address:
-            result["payment_address"] = payment_address
-
-    if result.get("special_requirement"):
-        result["special_requirement"] = normalize_special_requirement(result["special_requirement"])
-    if not result.get("mm_deposit"):
-        for line in lines:
-            if re.search(r"\b(mm|market\s*maker|liquidity)\b", line, flags=re.IGNORECASE):
-                mm_candidate = find_amount_candidate(line)
-                if mm_candidate:
-                    result["mm_deposit"] = format_number_str(mm_candidate)
-                    break
-
-    if not result.get("listing"):
-        for line in lines:
-            if not re.search(r"(listing|上市|上线)", line, flags=re.IGNORECASE):
-                continue
-            date_token = extract_date_token(line)
-            if date_token:
-                result["listing"] = parse_date_string(date_token)
-                break
 
     if "date" in result:
         result["date"] = parse_date_string(result["date"])
@@ -1480,37 +1178,9 @@ def update_wallet_clause(doc: Document, wallets: dict[str, str]) -> None:
 
 
 def build_mapping(state: dict) -> dict[str, str]:
-    mapping: dict[str, str] = {}
-    for key, value in state.items():
-        if isinstance(value, str):
-            mapping[key] = value.strip()
-        else:
-            mapping[key] = str(value).strip()
+    mapping = {}
     for key, _label in FIELDS:
-        mapping.setdefault(key, state.get(key, "").strip())
-
-    alias_map = {
-        "jira_review_link": "Jira review link",
-        "project_full_name": "Project full name",
-        "company_registration_document": "Company registration document",
-        "company": "Company name",
-        "address": "Registered address",
-        "name1": "Signer full name",
-        "signer_title": "Signer title",
-        "signer_email": "Signer e-mail",
-        "token": "Ticker name",
-        "open_trading_pair": "Open trading pair",
-        "listing": "Listing date",
-        "amount": "Listing fee",
-        "payment_address": "Payment address",
-        "mm_deposit": "MM deposit",
-        "special_requirement": "Special requirement",
-    }
-    for key, alias in alias_map.items():
-        value = mapping.get(key, "").strip()
-        if value:
-            mapping[alias] = value
-
+        mapping[key] = state.get(key, "").strip()
     return mapping
 
 
@@ -1870,14 +1540,10 @@ ensure_kyc_template(os.path.join(BASE_DIR, KYC_TEMPLATE_ORDERED))
 for key, _label in FIELDS:
     session_key = f"field_{key}"
     if session_key not in st.session_state:
-        st.session_state[session_key] = ""
-
-if "field_date" not in st.session_state:
-    st.session_state["field_date"] = format_date(datetime.today())
-if "field_amountInWords" not in st.session_state:
-    st.session_state["field_amountInWords"] = ""
-if "field_Jurisdiction" not in st.session_state:
-    st.session_state["field_Jurisdiction"] = ""
+        if key == "date":
+            st.session_state[session_key] = format_date(datetime.today())
+        else:
+            st.session_state[session_key] = ""
 
 if "active_page" not in st.session_state:
     st.session_state.active_page = "Listing Agreement"
@@ -1990,6 +1656,15 @@ if active_page.lower() != "kyc":
                                 and not st.session_state.include_technical_fee
                             ),
                         )
+                    elif key == "amountInWords":
+                        st.text_input(
+                            label,
+                            key="field_amountInWords",
+                            disabled=(
+                                st.session_state.selected_template == "Company Waive"
+                                and not st.session_state.include_technical_fee
+                            ),
+                        )
                     else:
                         st.text_input(label, key=f"field_{key}")
     
@@ -2006,9 +1681,6 @@ if active_page.lower() != "kyc":
     
         if st.button("生成 Word 文档 (Generate)", use_container_width=True):
             state_values = {key: st.session_state.get(f"field_{key}", "") for key, _ in FIELDS}
-            state_values["date"] = st.session_state.get("field_date", format_date(datetime.today()))
-            state_values["Jurisdiction"] = st.session_state.get("field_Jurisdiction", "")
-            state_values["amountInWords"] = st.session_state.get("field_amountInWords", "")
             if st.session_state.selected_template == "Company Waive" and not st.session_state.include_technical_fee:
                 state_values["amount"] = "N/A"
                 state_values["amountInWords"] = "N/A"
@@ -2017,22 +1689,11 @@ if active_page.lower() != "kyc":
             )
             state_values["amount"] = amount
             state_values["amountInWords"] = amount_in_words
-            st.session_state["field_amountInWords"] = amount_in_words
-            if state_values.get("open_trading_pair") and not state_values.get("token"):
-                state_values["token"] = state_values["open_trading_pair"].split("/", 1)[0].strip().upper()
             mapping = build_mapping(state_values)
             wallets = wallets_from_input(
                 st.session_state.get("wallet_text", ""),
                 st.session_state.get("email_text", ""),
             )
-            if not state_values.get("payment_address"):
-                for key in ("erc20", "bsc", "trc20", "solana"):
-                    candidate = wallets.get(key, "").strip()
-                    if candidate:
-                        state_values["payment_address"] = candidate
-                        mapping["payment_address"] = candidate
-                        mapping["Payment address"] = candidate
-                        break
             mapping["Wallets"] = wallets_to_text(wallets) if any(wallets.values()) else ""
     
             template_file = TEMPLATE_FILES[st.session_state.selected_template]
