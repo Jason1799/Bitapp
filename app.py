@@ -1234,6 +1234,16 @@ div[data-testid="stAppViewContainer"] {
     background: #ffffff;
 }
 
+header[data-testid="stHeader"] {
+    display: none;
+}
+
+div[data-testid="stToolbar"],
+div[data-testid="stDecoration"],
+div[data-testid="stStatusWidget"] {
+    display: none;
+}
+
 .block-container {
     padding-top: 0.75rem;
     padding-bottom: 2rem;
