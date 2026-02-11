@@ -371,15 +371,17 @@ export const ListingGenerator: React.FC = () => {
     const handleChange = (key: keyof ListingAgreementData, value: any) => {
         setData(prev => {
             const updated = { ...prev, [key]: value };
-            // Auto-sync amount → amountInWords
-            if (key === 'amount') {
-                const words = numberToWords(value);
-                if (words) updated.amountInWords = words;
-            }
-            // Auto-sync marketingamount → marketinginwords
-            if (key === 'marketingamount') {
-                const words = numberToWords(value);
-                if (words) updated.marketinginwords = words;
+            // Auto-format amount with commas (60000 → 60,000)
+            if (key === 'amount' || key === 'marketingamount') {
+                const raw = String(value).replace(/[^0-9.]/g, '');
+                const parts = raw.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                const formatted = parts.join('.');
+                updated[key] = formatted as any;
+                // Auto-sync to words
+                const words = numberToWords(raw);
+                if (key === 'amount' && words) updated.amountInWords = words;
+                if (key === 'marketingamount' && words) updated.marketinginwords = words;
             }
             return updated;
         });
