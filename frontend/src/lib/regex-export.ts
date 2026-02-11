@@ -1,152 +1,159 @@
 // Regex Rules Export - Generates a readable markdown document of all extraction rules
+// Synced with extraction.ts patterns
 
 import { ListingAgreementData } from './types';
+
+// NOTE: All patterns now support optional bullet/number prefix: (?:[•\*\-●]\s*|\d+[.)、]\s*)?
+const PREFIX_NOTE = `> All patterns support optional bullet/number prefix (• * - 1. 2.) before the label.`;
 
 // Mirror of FIELD_PATTERNS from extraction.ts (exported as data for documentation)
 const FIELD_PATTERNS_DOC: Record<string, { patterns: string[]; description: string }> = {
     company: {
         description: "Company Name / 公司名称",
         patterns: [
-            String.raw`/company\s*名称\s*[:：]\s*(.+)/i`,
-            String.raw`/company\s*name\s*[:：]\s*(.+)/i`,
-            String.raw`/compny\s*name\s*[:：]\s*(.+)/i`,
-            String.raw`/companyname\s*[:：]\s*(.+)/i`,
-            String.raw`/company\s*nm\s*[:：]\s*(.+)/i`,
-            String.raw`/company\s*[:：]\s*(.+)/i`,
-            String.raw`/公司名称\s*[:：]\s*(.+)/i`,
+            `company 名称`, `company name`, `compny name`, `companyname`, `company nm`,
+            `legal entity name`, `entity name`, `project entity`,
+            `company`, `公司名称`, `公司名`,
         ]
     },
     jurisdiction: {
         description: "Jurisdiction / 管辖地",
         patterns: [
-            String.raw`/Jurisdiction\s*管辖地\/国\s*[:：]\s*(.+)/i`,
-            String.raw`/Jurisdiction\s*[:：]\s*(.+)/i`,
-            String.raw`/管辖地\/国\s*[:：]\s*(.+)/i`,
-            String.raw`/jurisdiction\s*[:：]\s*(.+)/i`,
+            `jurisdiction 管辖地/国`, `jurisdiction / country`,
+            `country of incorporation`, `incorporation country`,
+            `jurisdiction`, `管辖地/国`, `管辖地`, `注册国家`,
         ]
     },
     address: {
         description: "Registered Address / 注册地址",
         patterns: [
-            String.raw`/registered\s*address\s*[:：]\s*(.+)/i`,
-            String.raw`/company\s*address\s*[:：]\s*(.+)/i`,
-            String.raw`/addr\s*[:：]\s*(.+)/i`,
-            String.raw`/address\s*公司地址\s*[:：]\s*(.+)/i`,
-            String.raw`/address\s*[:：]\s*(.+)/i`,
-            String.raw`/注册地址\s*[:：]\s*(.+)/i`,
-            String.raw`/公司地址\s*[:：]\s*(.+)/i`,
+            `registered address`, `company address`, `business address`, `office address`,
+            `addr`, `address 公司地址`, `address`,
+            `注册地址`, `公司地址`, `地址`,
         ]
     },
     signdate: {
-        description: "Agreement Sign Date / 签署日期",
+        description: "Agreement Sign Date / 签署日期 (auto-normalized to Month DD, YYYY)",
         patterns: [
-            String.raw`/合同签署date\s*[:：]\s*(.+)/i`,
-            String.raw`/agreement\s*date\s*[:：]\s*(.+)/i`,
-            String.raw`/signing\s*date\s*[:：]\s*(.+)/i`,
-            String.raw`/date\s*[:：]\s*(.+)/i`,
+            `合同签署 date`, `agreement date`, `signing date`, `sign date`,
+            `contract date`, `签署日期`, `签约日期`, `date`,
         ]
     },
     listingdate: {
-        description: "Listing Date / 上线日期",
+        description: "Listing Date / 上线日期 (auto-normalized to Month DD, YYYY)",
         patterns: [
-            String.raw`/上市日\s*[:：]\s*(.+)/i`,
-            String.raw`/listing\s*date\s*[:：]\s*(.+)/i`,
-            String.raw`/latest\s*date\s*[:：]\s*(.+)/i`,
-            String.raw`/latest\s*listing\s*date\s*[:：]\s*(.+)/i`,
-            String.raw`/listing\s*day\s*[:：]\s*(.+)/i`,
-            String.raw`/listing\s*time\s*[:：]\s*(.+)/i`,
-            String.raw`/list\s*date\s*[:：]\s*(.+)/i`,
-            String.raw`/time\s*to\s*market\s*[:：]\s*(.+)/i`,
-            String.raw`/最晚上线日期\s*[:：]\s*(.+)/i`,
-            String.raw`/上线日期\s*[:：]\s*(.+)/i`,
-            String.raw`/listing\s*[:：]\s*(.+)/i`,
+            `latest listing date`, `listing date`, `latest date`,
+            `launch date`, `go live date`,
+            `listing day`, `listing time`, `list date`,
+            `time to market`, `expected listing`, `target listing`,
+            `上市日`, `最晚上线日期`, `上线日期`, `上币日期`, `listing`,
         ]
     },
     token: {
-        description: "Token Symbol / 代币名称",
+        description: "Token Symbol / 代币名称 (auto-uppercased, first word extracted)",
         patterns: [
-            String.raw`/token\s*代币名称\s*[:：]\s*(.+)/i`,
-            String.raw`/token\s*ticker\s*[:：]\s*(.+)/i`,
-            String.raw`/ticker\s*name\s*[:：]\s*(.+)/i`,
-            String.raw`/ticker\s*[:：]\s*(.+)/i`,
-            String.raw`/token\s*symbol\s*[:：]\s*(.+)/i`,
-            String.raw`/symbol\s*[:：]\s*(.+)/i`,
-            String.raw`/token\s*name\s*[:：]\s*(.+)/i`,
-            String.raw`/token\s*[:：]\s*(.+)/i`,
-            String.raw`/代币名称\s*[:：]\s*(.+)/i`,
+            `token 代币名称`, `token ticker`, `ticker name`, `ticker`,
+            `token symbol`, `coin name`, `coin`, `symbol`,
+            `token name`, `token`, `代币名称`, `代币`,
         ]
     },
     amount: {
-        description: "Listing Fee Amount / 上市费用金额",
+        description: "Listing Fee Amount / 上市费用金额 (supports $90k, $, USDT stripping)",
         patterns: [
-            String.raw`/listing\s*fee\s*amount\s*[:：]\s*(.+)/i`,
-            String.raw`/listing\s*fee\s*[:：]\s*(.+)/i`,
-            String.raw`/amount\s*[:：]\s*(.+)/i`,
+            `listing fee amount`, `listing fee (USD)`, `listing fee (USDT)`,
+            `listing fee`, `上市费用 金额`, `上市费用`, `上市费`,
+            `fee amount`, `amount`,
         ]
     },
     amountInWords: {
-        description: "Listing Fee in English Words (ALL CAPS)",
+        description: "Listing Fee in English Words (auto-uppercased to ALL CAPS)",
         patterns: [
-            String.raw`/listing\s*fee\s*in\s*words\s*[:：]\s*(.+)/i`,
-            String.raw`/money\s*上市费英文大写\s*[:：]\s*(.+)/i`,
-            String.raw`/amountinwords\s*[:：]\s*(.+)/i`,
-            String.raw`/英文大写\s*[:：]\s*(.+)/i`,
+            `listing fee in words`, `amount in words`, `fee in words`,
+            `money 上市费英文大写`, `amountinwords`, `amount in english`,
+            `英文大写`, `金额大写`,
         ]
     },
     signname: {
         description: "Signer Full Name / 签署人",
         patterns: [
-            String.raw`/签署人\s*1\s*[:：]\s*(.+)/i`,
-            String.raw`/signer\s*full\s*name\s*[:：]\s*(.+)/i`,
-            String.raw`/signer\s*name\s*[:：]\s*(.+)/i`,
-            String.raw`/full\s*legal\s*name\s*[:：]\s*(.+)/i`,
-            String.raw`/signer\s*[:：]\s*(.+)/i`,
-            String.raw`/name1\s*[:：]\s*(.+)/i`,
+            `签署人 1`, `签署人`,
+            `signer full name`, `signer name`, `full legal name`, `legal name`,
+            `authorized signer`, `representative name`, `contact person`,
+            `signer`, `name1`,
         ]
     },
     marketingamount: {
         description: "Marketing Fee Amount / 营销费用金额",
         patterns: [
-            String.raw`/marketing\s*amount\s*[:：]\s*(.+)/i`,
-            String.raw`/marketing\s*fee\s*[:：]\s*(.+)/i`,
-            String.raw`/marketing\s*[:：]\s*(.+)/i`,
+            `marketing (fee) amount`, `marketing fee (USD)`, `marketing fee (USDT)`,
+            `marketing fee`, `promotional fee`, `promotion fee`,
+            `营销费用`, `推广费`, `marketing`,
         ]
     },
     marketinginwords: {
         description: "Marketing Fee in English Words (ALL CAPS)",
         patterns: [
-            String.raw`/marketing\s*in\s*words\s*[:：]\s*(.+)/i`,
-            String.raw`/marketing\s*fee\s*words\s*[:：]\s*(.+)/i`,
+            `marketing (fee) in words`, `marketing fee words`,
+            `marketing amount in words`, `marketing in english`, `营销费大写`,
         ]
     },
     tradingpair: {
         description: "Trading Pair / 交易对",
         patterns: [
-            String.raw`/trading\s*pair\s*[:：]\s*(.+)/i`,
-            String.raw`/pair\s*[:：]\s*(.+)/i`,
+            `trading pair(s)`, `trade pair(s)`, `pair(s)`, `交易对`,
+        ]
+    },
+    wallets: {
+        description: "Wallet Address(es) / 钱包地址",
+        patterns: [
+            `wallet address(es)`, `deposit address(es)`, `钱包地址`, `wallet(s)`,
         ]
     },
 };
 
 const COUNTRY_KEYWORDS_DOC: Record<string, string> = {
+    // Common crypto jurisdictions
     "indonesia": "Indonesia", "jakarta": "Indonesia",
     "singapore": "Singapore",
     "hong kong": "Hong Kong",
-    "cayman": "Cayman Islands",
+    "cayman": "Cayman Islands", "cayman islands": "Cayman Islands",
     "british virgin islands": "British Virgin Islands", "bvi": "British Virgin Islands", "tortola": "British Virgin Islands",
-    "seychelles": "Seychelles",
-    "united states": "United States", "usa": "United States",
+    "seychelles": "Seychelles", "mahe": "Seychelles",
+    "united states": "United States", "usa": "United States", "delaware": "United States", "wyoming": "United States", "new york": "United States",
     "united kingdom": "United Kingdom", "uk": "United Kingdom", "london": "United Kingdom",
-    "st. vincent and the grenadines": "St. Vincent and the Grenadines", "st. vincent": "St. Vincent and the Grenadines",
+    "st. vincent and the grenadines": "St. Vincent and the Grenadines", "saint vincent": "St. Vincent and the Grenadines", "st. vincent": "St. Vincent and the Grenadines",
+    // European
     "romania": "Romania", "bucuresti": "Romania", "bucharest": "Romania", "judet": "Romania", "municipiul": "Romania",
     "estonia": "Estonia", "tallinn": "Estonia",
     "lithuania": "Lithuania", "vilnius": "Lithuania",
-    "malta": "Malta", "switzerland": "Switzerland", "cyprus": "Cyprus", "gibraltar": "Gibraltar", "liechtenstein": "Liechtenstein",
-    "japan": "Japan", "korea": "South Korea", "australia": "Australia", "india": "India",
-    "vietnam": "Vietnam", "thailand": "Thailand", "philippines": "Philippines", "malaysia": "Malaysia", "taiwan": "Taiwan",
-    "dubai": "UAE", "abu dhabi": "UAE", "united arab emirates": "UAE", "bahrain": "Bahrain",
-    "panama": "Panama", "canada": "Canada", "bermuda": "Bermuda",
+    "malta": "Malta",
+    "switzerland": "Switzerland", "zurich": "Switzerland", "zug": "Switzerland",
+    "cyprus": "Cyprus", "nicosia": "Cyprus", "limassol": "Cyprus",
+    "gibraltar": "Gibraltar", "liechtenstein": "Liechtenstein",
+    "ireland": "Ireland", "dublin": "Ireland",
+    "netherlands": "Netherlands", "luxembourg": "Luxembourg",
+    // Asia Pacific
+    "japan": "Japan", "tokyo": "Japan",
+    "korea": "South Korea", "seoul": "South Korea",
+    "australia": "Australia", "sydney": "Australia",
+    "india": "India", "mumbai": "India",
+    "vietnam": "Vietnam", "hanoi": "Vietnam", "ho chi minh": "Vietnam",
+    "thailand": "Thailand", "bangkok": "Thailand",
+    "philippines": "Philippines", "manila": "Philippines",
+    "malaysia": "Malaysia", "kuala lumpur": "Malaysia",
+    "taiwan": "Taiwan", "taipei": "Taiwan",
+    "china": "China", "beijing": "China", "shanghai": "China",
+    // Middle East
+    "dubai": "UAE", "abu dhabi": "UAE", "united arab emirates": "UAE",
+    "bahrain": "Bahrain", "qatar": "Qatar", "saudi arabia": "Saudi Arabia",
+    // Americas
+    "panama": "Panama", "canada": "Canada", "toronto": "Canada",
+    "bermuda": "Bermuda", "brazil": "Brazil", "argentina": "Argentina", "mexico": "Mexico",
+    // Africa
+    "south africa": "South Africa", "nigeria": "Nigeria", "kenya": "Kenya",
+    // Others
     "marshall islands": "Marshall Islands", "samoa": "Samoa", "labuan": "Malaysia (Labuan)",
+    "nevis": "St. Kitts and Nevis", "belize": "Belize", "mauritius": "Mauritius", "curacao": "Curaçao",
 };
 
 const VALIDATION_RULES_DOC: Record<string, string> = {
@@ -175,11 +182,12 @@ export function generateRegexRulesMarkdown(optimizationLogs?: any[]): string {
 
     // Section 1: Field Patterns
     md += `## 1. Field Extraction Patterns\n\n`;
-    md += `Each field is matched against a list of regex patterns in order. The first match wins.\n\n`;
+    md += `Each field is matched against keyword labels (case-insensitive) followed by a colon.\n`;
+    md += `${PREFIX_NOTE}\n\n`;
 
     for (const [field, info] of Object.entries(FIELD_PATTERNS_DOC)) {
         md += `### ${field} — ${info.description}\n`;
-        md += `| # | Pattern |\n|---|---|\n`;
+        md += `| # | Keyword Label |\n|---|---|\n`;
         info.patterns.forEach((p, i) => {
             md += `| ${i + 1} | \`${p}\` |\n`;
         });
@@ -187,8 +195,8 @@ export function generateRegexRulesMarkdown(optimizationLogs?: any[]): string {
     }
 
     // Section 2: Country Keywords
-    md += `## 2. Jurisdiction Fallback — Country Keywords\n\n`;
-    md += `If regex fails to extract jurisdiction, the full text is scanned for these keywords:\n\n`;
+    md += `## 2. Jurisdiction Fallback — Country Keywords (${Object.keys(COUNTRY_KEYWORDS_DOC).length} entries)\n\n`;
+    md += `If regex fails to extract jurisdiction, address + full text is scanned for these keywords:\n\n`;
     md += `| Keyword | Maps To |\n|---|---|\n`;
     for (const [keyword, country] of Object.entries(COUNTRY_KEYWORDS_DOC)) {
         md += `| ${keyword} | ${country} |\n`;
@@ -205,12 +213,20 @@ export function generateRegexRulesMarkdown(optimizationLogs?: any[]): string {
     md += `\n`;
 
     // Section 4: Special Logic
-    md += `## 4. Special Logic\n\n`;
-    md += `- **Amount normalization**: Commas are stripped (e.g., "30,000" → "30000")\n`;
-    md += `- **Signer name fallback**: If no signer pattern matches, tries \`/Name\\s*[:：]\\s*(.+)/i\`\n`;
-    md += `- **Technical fee detection**: Currently defaults to \`true\` (always include)\n`;
-    md += `- **Amount formatting**: Display adds commas back (60000 → 60,000)\n`;
-    md += `- **Date format**: Expected output is "Month DD, YYYY" (e.g., "February 11, 2026")\n\n`;
+    md += `## 4. Special Logic & Auto-Processing\n\n`;
+    md += `- **Bullet/Number prefix**: All patterns handle \`• * - 1. 2.\` prefixes before labels\n`;
+    md += `- **Date normalization**: Auto-converts \`2026-02-11\`, \`02/11/2026\`, \`Feb 11, 2026\`, \`11 Feb 2026\` → \`February 11, 2026\`\n`;
+    md += `- **Amount normalization**: Strips \`$\`, commas, \`USD\`/\`USDT\`; handles \`$90k\` → \`90000\`, \`$1.5M\` → \`1500000\`\n`;
+    md += `- **Token auto-uppercase**: Extracts first word, removes quotes/parentheses, forces uppercase\n`;
+    md += `- **Amount in words**: Auto-uppercased to ALL CAPS\n`;
+    md += `- **Trailing noise cleanup**: Removes parenthetical notes like \`(inclusive of...)\`\n`;
+    md += `- **Signer name fallback**: If no signer pattern matches, tries \`Name:\` (avoiding \`Company Name:\` etc.)\n`;
+    md += `- **Jurisdiction fallback**: Scans address field first, then full text for country keywords\n`;
+    md += `- **Amount fallback**: Searches for numbers near "listing fee" context\n`;
+    md += `- **Trading pair fallback**: Detects \`XXX/USDT\` patterns anywhere in text\n`;
+    md += `- **Wallet fallback**: Detects ETH (0x...), TRX (T...), BTC (1.../3.../bc1...) addresses\n`;
+    md += `- **Technical fee detection**: Defaults to \`true\`, set to \`false\` if "waive"/"waiver"/"免除" found\n`;
+    md += `- **Display formatting**: Amounts display with commas (60000 → 60,000)\n\n`;
 
     // Section 5: Optimization Logs (if available)
     if (optimizationLogs && optimizationLogs.length > 0) {
