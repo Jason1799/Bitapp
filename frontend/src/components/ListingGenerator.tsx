@@ -4,7 +4,7 @@ import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Wand2, RefreshCw, Trash2, History as HistoryIcon, FileText, Settings, Download } from 'lucide-react';
+import { Wand2, RefreshCw, Trash2, History as HistoryIcon, FileText, Settings } from 'lucide-react';
 import { ListingAgreementData } from '../lib/types';
 import { analyzeWithAI, BUILTIN_FALLBACK_MODELS } from '../lib/ai';
 import { extractFields, detectTechnicalFee } from '../lib/extraction';
@@ -15,7 +15,6 @@ import { DatePickerInput } from './ui/date-picker-input';
 import { getAllTemplates, getTemplateData, getOutputPattern, formatOutputName, type TemplateInfo } from '../lib/template-store';
 import { getCloudHistory, addCloudHistory, clearCloudHistory, type CloudHistoryItem } from '../lib/cloud-store';
 import { computeDiffs, analyzePromptDiff, saveOptimizationLog, getOptimizationLogs, type OptimizationLogEntry } from '../lib/prompt-optimizer';
-import { generateRegexRulesMarkdown } from '../lib/regex-export';
 
 
 const INITIAL_DATA: ListingAgreementData = {
@@ -445,21 +444,6 @@ export const ListingGenerator: React.FC = () => {
         });
     };
 
-    const handleExportRegexRules = async () => {
-        try {
-            const logs = await getOptimizationLogs();
-            const markdown = generateRegexRulesMarkdown(logs);
-            const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
-            saveAs(blob, `bitapp-regex-rules-${new Date().toISOString().slice(0, 10)}.md`);
-        } catch (err) {
-            console.error('[ExportRules] Failed:', err);
-            // Fallback: export without logs
-            const markdown = generateRegexRulesMarkdown([]);
-            const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
-            saveAs(blob, `bitapp-regex-rules-${new Date().toISOString().slice(0, 10)}.md`);
-        }
-    };
-
     return (
         <div className="grid grid-cols-1 md:grid-cols-[35%_65%] gap-6 h-[calc(100vh-140px)]">
 
@@ -625,23 +609,13 @@ export const ListingGenerator: React.FC = () => {
                                 Smart Analyze (AI)
                             </Button>
                         </div>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                className="flex-1 text-xs text-gray-500 border-dashed h-7"
-                                onClick={handleClear}
-                            >
-                                Clear All
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="flex-1 text-xs text-gray-500 border-dashed h-7"
-                                onClick={handleExportRegexRules}
-                            >
-                                <Download className="w-3 h-3 mr-1" />
-                                Export Regex Rules
-                            </Button>
-                        </div>
+                        <Button
+                            variant="outline"
+                            className="w-full text-xs text-gray-500 border-none shadow-sm h-6"
+                            onClick={handleClear}
+                        >
+                            Clear All
+                        </Button>
                     </CardContent>
                 </Card>
             </div>

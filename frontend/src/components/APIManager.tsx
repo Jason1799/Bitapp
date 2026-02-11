@@ -4,11 +4,14 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
-import { Lock, Play, Save, RotateCcw, Settings, FileText, RefreshCw, Upload, Trash2, Plus, Cloud, CloudOff } from 'lucide-react';
+import { Lock, Play, Save, RotateCcw, Settings, FileText, RefreshCw, Upload, Trash2, Plus, Cloud, CloudOff, Download } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { DEFAULT_SYSTEM_PROMPT, PROMPT_STORAGE_KEY } from '../lib/ai';
 import { getAllTemplates, saveTemplate, deleteTemplate, replaceBuiltInTemplate, resetBuiltInTemplate, getOutputPattern, saveOutputPattern, formatOutputName, DEFAULT_OUTPUT_PATTERN_VALUE, type TemplateInfo } from '../lib/template-store';
 import { getCloudConfig, saveCloudConfig, getCloudPrompt, saveCloudPrompt } from '../lib/cloud-store';
+import { getOptimizationLogs } from '../lib/prompt-optimizer';
+import { generateRegexRulesMarkdown } from '../lib/regex-export';
+import { saveAs } from 'file-saver';
 
 
 const DEFAULT_PASSWORD = "admin"; // Simple hardcoded password for now
@@ -738,6 +741,32 @@ export const APIManager: React.FC = () => {
                                         <div key={v} className="bg-gray-50 rounded px-2 py-1 font-mono text-gray-600">{`{{${v}}}`}</div>
                                     ))}
                                 </div>
+                            </div>
+
+                            {/* Export Regex Rules */}
+                            <div className="border rounded-lg p-4 bg-white space-y-3">
+                                <h4 className="text-sm font-semibold text-gray-700">📋 Regex 规则导出</h4>
+                                <p className="text-xs text-gray-500">导出当前所有正则提取规则和 AI 优化日志，用于离线优化。</p>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="w-full text-xs"
+                                    onClick={async () => {
+                                        try {
+                                            const logs = await getOptimizationLogs();
+                                            const md = generateRegexRulesMarkdown(logs);
+                                            const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+                                            saveAs(blob, `bitapp-regex-rules-${new Date().toISOString().slice(0, 10)}.md`);
+                                        } catch {
+                                            const md = generateRegexRulesMarkdown([]);
+                                            const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+                                            saveAs(blob, `bitapp-regex-rules-${new Date().toISOString().slice(0, 10)}.md`);
+                                        }
+                                    }}
+                                >
+                                    <Download className="w-3.5 h-3.5 mr-1" />
+                                    Export Regex Rules (.md)
+                                </Button>
                             </div>
                         </CardContent>
                     </Card>
