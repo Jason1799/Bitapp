@@ -13,6 +13,7 @@ import { cn } from '../lib/utils';
 import { saveHistory, getHistory, clearHistory, HistoryItem } from '../lib/history';
 import { DatePickerInput } from './ui/date-picker-input';
 import { getAllTemplates, getTemplateData, getOutputPattern, formatOutputName, type TemplateInfo } from '../lib/template-store';
+import { getCloudHistory, addCloudHistory, clearCloudHistory, type CloudHistoryItem } from '../lib/cloud-store';
 
 
 const INITIAL_DATA: ListingAgreementData = {
@@ -150,7 +151,30 @@ export const ListingGenerator: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        setHistoryItems(getHistory().filter(item => item.type === 'listing'));
+        // Load history from cloud first, then local as fallback
+        (async () => {
+            try {
+                const cloudHistory = await getCloudHistory();
+                if (cloudHistory && cloudHistory.length > 0) {
+                    // Map cloud items to local HistoryItem format
+                    const mapped = cloudHistory
+                        .filter((item: any) => item.type === 'listing')
+                        .map((item: any) => ({
+                            id: item.id || Date.now().toString(),
+                            timestamp: typeof item.timestamp === 'number' ? new Date(item.timestamp).toISOString() : item.timestamp,
+                            type: item.type,
+                            inputText: item.inputText,
+                            outputData: item.outputData,
+                        } as HistoryItem));
+                    setHistoryItems(mapped);
+                    return;
+                }
+            } catch {
+                console.warn('[ListingGenerator] Cloud history load failed.');
+            }
+            // Fallback to local
+            setHistoryItems(getHistory().filter(item => item.type === 'listing'));
+        })();
     }, [showHistory]);
 
     // Validation Logic
@@ -250,12 +274,22 @@ export const ListingGenerator: React.FC = () => {
 
             // Auto-save after analysis
             const mergedData = { ...data, ...extracted, includeTechnicalFee: hasTechnicalFee };
+            const historyItem: CloudHistoryItem = {
+                id: Date.now().toString(),
+                timestamp: Date.now(),
+                type: 'listing',
+                inputText: emailText,
+                outputData: mergedData as ListingAgreementData,
+            };
+            // Save locally
             saveHistory({
                 inputText: emailText,
                 outputData: mergedData as ListingAgreementData,
                 type: 'listing'
             });
-            setHistoryItems(getHistory().filter((item: HistoryItem) => item.type === 'listing'));
+            // Save to cloud
+            addCloudHistory(historyItem).catch(() => { });
+            setHistoryItems(prev => [historyItem as any, ...prev]);
 
         } catch (e) {
             console.error(e);
@@ -473,7 +507,7 @@ export const ListingGenerator: React.FC = () => {
                             <div className="absolute inset-0 bg-white z-10 p-4 overflow-y-auto">
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className="font-semibold text-sm">Execution History</h3>
-                                    <Button variant="ghost" size="sm" onClick={() => { clearHistory(); setHistoryItems([]) }} className="text-red-500 h-8 px-2"><Trash2 className="w-3 h-3 mr-1" /> Clear</Button>
+                                    <Button variant="ghost" size="sm" onClick={() => { clearHistory(); clearCloudHistory(); setHistoryItems([]) }} className="text-red-500 h-8 px-2"><Trash2 className="w-3 h-3 mr-1" /> Clear</Button>
                                 </div>
                                 <div className="space-y-2">
                                     {historyItems.length === 0 && <p className="text-sm text-gray-400 text-center py-8">No history yet.</p>}

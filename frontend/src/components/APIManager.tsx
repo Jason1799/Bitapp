@@ -4,10 +4,11 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
-import { Lock, Play, Save, RotateCcw, Settings, FileText, RefreshCw, Upload, Trash2, Plus } from 'lucide-react';
+import { Lock, Play, Save, RotateCcw, Settings, FileText, RefreshCw, Upload, Trash2, Plus, Cloud, CloudOff } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { DEFAULT_SYSTEM_PROMPT, PROMPT_STORAGE_KEY } from '../lib/ai';
 import { getAllTemplates, saveTemplate, deleteTemplate, replaceBuiltInTemplate, resetBuiltInTemplate, getOutputPattern, saveOutputPattern, formatOutputName, DEFAULT_OUTPUT_PATTERN_VALUE, type TemplateInfo } from '../lib/template-store';
+import { getCloudConfig, saveCloudConfig, getCloudPrompt, saveCloudPrompt } from '../lib/cloud-store';
 
 
 const DEFAULT_PASSWORD = "admin"; // Simple hardcoded password for now
@@ -42,11 +43,42 @@ export const APIManager: React.FC = () => {
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const [replacingId, setReplacingId] = useState<string | null>(null);
+    const [cloudSynced, setCloudSynced] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
+        // Load local prompt
         const custom = localStorage.getItem(PROMPT_STORAGE_KEY);
         setPromptText(custom || DEFAULT_SYSTEM_PROMPT);
         loadTemplates();
+
+        // Try to load from cloud
+        (async () => {
+            try {
+                const cloudConfig = await getCloudConfig();
+                if (cloudConfig && cloudConfig.apiKey) {
+                    setApiKey(cloudConfig.apiKey);
+                    setBaseUrl(cloudConfig.baseUrl || 'https://api.openai.com/v1');
+                    setModel(cloudConfig.model || 'gpt-4o');
+                    setExtraJson(cloudConfig.extraJson || '{}');
+                    // Also save to localStorage for other components
+                    localStorage.setItem('openai_key', cloudConfig.apiKey);
+                    localStorage.setItem('openai_base_url', cloudConfig.baseUrl || 'https://api.openai.com/v1');
+                    localStorage.setItem('openai_model', cloudConfig.model || 'gpt-4o');
+                    window.dispatchEvent(new Event('local-storage-update'));
+                    setCloudSynced(true);
+                }
+
+                const cloudPrompt = await getCloudPrompt();
+                if (cloudPrompt) {
+                    setPromptText(cloudPrompt);
+                    localStorage.setItem(PROMPT_STORAGE_KEY, cloudPrompt);
+                    setCloudSynced(true);
+                }
+            } catch {
+                console.warn('[APIManager] Cloud sync failed, using local data.');
+            }
+        })();
     }, []);
 
     const loadTemplates = async () => {
@@ -122,26 +154,37 @@ export const APIManager: React.FC = () => {
         }
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        setIsSaving(true);
+        // Save to localStorage
         localStorage.setItem('openai_base_url', baseUrl);
         localStorage.setItem('openai_key', apiKey);
         localStorage.setItem('openai_model', model);
-        alert("Settings Saved!");
+        window.dispatchEvent(new Event('local-storage-update'));
+
+        // Save to cloud
+        const ok = await saveCloudConfig({ apiKey, baseUrl, model, extraJson });
+        setCloudSynced(ok);
+        setIsSaving(false);
+        alert(ok ? "Settings Saved & Synced to Cloud! ☁️" : "Settings Saved locally (Cloud sync failed)");
     };
 
-    const handleSavePrompt = () => {
+    const handleSavePrompt = async () => {
         if (promptText.trim() === DEFAULT_SYSTEM_PROMPT.trim()) {
             localStorage.removeItem(PROMPT_STORAGE_KEY);
         } else {
             localStorage.setItem(PROMPT_STORAGE_KEY, promptText);
         }
+        // Sync to cloud
+        await saveCloudPrompt(promptText);
         setPromptSaved(true);
         setTimeout(() => setPromptSaved(false), 2000);
     };
 
-    const handleResetPrompt = () => {
+    const handleResetPrompt = async () => {
         setPromptText(DEFAULT_SYSTEM_PROMPT);
         localStorage.removeItem(PROMPT_STORAGE_KEY);
+        await saveCloudPrompt(DEFAULT_SYSTEM_PROMPT);
         setPromptSaved(true);
         setTimeout(() => setPromptSaved(false), 2000);
     };
