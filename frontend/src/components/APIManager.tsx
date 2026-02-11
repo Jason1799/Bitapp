@@ -180,7 +180,7 @@ export const APIManager: React.FC = () => {
                         { role: "user", content: testPrompt }
                     ],
                     stream: true,
-                    stream: true,
+
                     // Filter out incompatible parameters for Google/OpenAI
                     ...(url.includes('googleapis') || url.includes('openai.com')
                         ? (({ chat_template_kwargs, ...rest }) => rest)(extraPayload as any)
