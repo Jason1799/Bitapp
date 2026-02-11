@@ -128,18 +128,18 @@ export const ListingGenerator: React.FC = () => {
     // AI & Memory State
     const [showSettings, setShowSettings] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
-    const [apiKey, setApiKey] = useState(localStorage.getItem('openai_key') || "");
-    const [baseUrl, setBaseUrl] = useState(localStorage.getItem('openai_base_url') || "https://api.openai.com/v1");
-    const [model, setModel] = useState(localStorage.getItem('openai_model') || "gpt-4o");
+    const [apiKey, setApiKey] = useState(localStorage.getItem('openai_key') || import.meta.env.VITE_API_KEY || "");
+    const [baseUrl, setBaseUrl] = useState(localStorage.getItem('openai_base_url') || import.meta.env.VITE_API_BASE_URL || "https://api.openai.com/v1");
+    const [model, setModel] = useState(localStorage.getItem('openai_model') || import.meta.env.VITE_API_MODEL || "gpt-4o");
 
     const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
     // Sync with local storage events
     useEffect(() => {
         const handleStorageChange = () => {
-            setApiKey(localStorage.getItem('openai_key') || "");
-            setBaseUrl(localStorage.getItem('openai_base_url') || "https://api.openai.com/v1");
-            setModel(localStorage.getItem('openai_model') || "gpt-4o");
+            setApiKey(localStorage.getItem('openai_key') || import.meta.env.VITE_API_KEY || "");
+            setBaseUrl(localStorage.getItem('openai_base_url') || import.meta.env.VITE_API_BASE_URL || "https://api.openai.com/v1");
+            setModel(localStorage.getItem('openai_model') || import.meta.env.VITE_API_MODEL || "gpt-4o");
         };
         window.addEventListener('storage', handleStorageChange);
         window.addEventListener('local-storage-update', handleStorageChange);

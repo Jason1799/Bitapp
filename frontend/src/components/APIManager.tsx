@@ -19,9 +19,9 @@ export const APIManager: React.FC = () => {
     const [subTab, setSubTab] = useState<"config" | "prompt">("config");
 
     // Config State
-    const [baseUrl, setBaseUrl] = useState(localStorage.getItem('openai_base_url') || "https://api.openai.com/v1");
-    const [apiKey, setApiKey] = useState(localStorage.getItem('openai_key') || "");
-    const [model, setModel] = useState(localStorage.getItem('openai_model') || "gpt-4o");
+    const [baseUrl, setBaseUrl] = useState(localStorage.getItem('openai_base_url') || import.meta.env.VITE_API_BASE_URL || "https://api.openai.com/v1");
+    const [apiKey, setApiKey] = useState(localStorage.getItem('openai_key') || import.meta.env.VITE_API_KEY || "");
+    const [model, setModel] = useState(localStorage.getItem('openai_model') || import.meta.env.VITE_API_MODEL || "gpt-4o");
     const [extraJson, setExtraJson] = useState('{"chat_template_kwargs": {"thinking": true}}');
 
     // Test State
