@@ -247,16 +247,8 @@ export const ListingGenerator: React.FC = () => {
                     return;
                 }
 
-                // Build the fallback chain: built-in Gemini models → user-configured model
-                const attempts: Array<{ model: string; baseUrl: string; label: string }> = [
-                    ...BUILTIN_FALLBACK_MODELS,
-                ];
-                // Add user's configured model if it's different from the built-ins
-                const userModelId = model.trim();
-                const isUserModelInBuiltins = BUILTIN_FALLBACK_MODELS.some(m => m.model === userModelId);
-                if (!isUserModelInBuiltins && userModelId) {
-                    attempts.push({ model: userModelId, baseUrl: cleanBaseUrl, label: `User: ${userModelId}` });
-                }
+                // Fallback chain: Gemini 3 Pro → Gemini 3 Flash → Regex
+                const attempts = [...BUILTIN_FALLBACK_MODELS];
 
                 let aiSuccess = false;
                 const errors: string[] = [];
