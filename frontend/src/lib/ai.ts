@@ -63,16 +63,19 @@ export const analyzeWithAI = async (text: string, config: AIConfig): Promise<Par
     let cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 
     // Proxy Logic
-    if (cleanBaseUrl.includes("integrate.api.nvidia.com")) {
-        cleanBaseUrl = cleanBaseUrl.replace("https://integrate.api.nvidia.com", "/nvidia-api");
-    } else if (cleanBaseUrl.includes("api.anthropic.com")) {
-        cleanBaseUrl = cleanBaseUrl.replace("https://api.anthropic.com", "/anthropic-api");
-    } else if (cleanBaseUrl.includes("generativelanguage.googleapis.com")) {
-        cleanBaseUrl = cleanBaseUrl.replace("https://generativelanguage.googleapis.com", "/gemini-api");
-    } else if (cleanBaseUrl.includes("api.deepseek.com")) {
-        cleanBaseUrl = cleanBaseUrl.replace("https://api.deepseek.com", "/deepseek-api");
-    } else if (cleanBaseUrl.includes("api.x.ai")) {
-        cleanBaseUrl = cleanBaseUrl.replace("https://api.x.ai", "/grok-api");
+    // Proxy Logic (Only in Dev)
+    if (import.meta.env.DEV) {
+        if (cleanBaseUrl.includes("integrate.api.nvidia.com")) {
+            cleanBaseUrl = cleanBaseUrl.replace("https://integrate.api.nvidia.com", "/nvidia-api");
+        } else if (cleanBaseUrl.includes("api.anthropic.com")) {
+            cleanBaseUrl = cleanBaseUrl.replace("https://api.anthropic.com", "/anthropic-api");
+        } else if (cleanBaseUrl.includes("generativelanguage.googleapis.com")) {
+            cleanBaseUrl = cleanBaseUrl.replace("https://generativelanguage.googleapis.com", "/gemini-api");
+        } else if (cleanBaseUrl.includes("api.deepseek.com")) {
+            cleanBaseUrl = cleanBaseUrl.replace("https://api.deepseek.com", "/deepseek-api");
+        } else if (cleanBaseUrl.includes("api.x.ai")) {
+            cleanBaseUrl = cleanBaseUrl.replace("https://api.x.ai", "/grok-api");
+        }
     }
 
     // Determine Provider & Endpoint
