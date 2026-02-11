@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Wand2, RefreshCw, Trash2, History as HistoryIcon, FileText, Settings } from 'lucide-react';
+import { Wand2, RefreshCw, Trash2, History as HistoryIcon, FileText, Settings, Download } from 'lucide-react';
 import { ListingAgreementData } from '../lib/types';
 import { analyzeWithAI, BUILTIN_FALLBACK_MODELS } from '../lib/ai';
 import { extractFields, detectTechnicalFee } from '../lib/extraction';
@@ -14,6 +14,8 @@ import { saveHistory, getHistory, clearHistory, HistoryItem } from '../lib/histo
 import { DatePickerInput } from './ui/date-picker-input';
 import { getAllTemplates, getTemplateData, getOutputPattern, formatOutputName, type TemplateInfo } from '../lib/template-store';
 import { getCloudHistory, addCloudHistory, clearCloudHistory, type CloudHistoryItem } from '../lib/cloud-store';
+import { computeDiffs, analyzePromptDiff, saveOptimizationLog, getOptimizationLogs, type OptimizationLogEntry } from '../lib/prompt-optimizer';
+import { generateRegexRulesMarkdown } from '../lib/regex-export';
 
 
 const INITIAL_DATA: ListingAgreementData = {
@@ -134,6 +136,9 @@ export const ListingGenerator: React.FC = () => {
     const [model, setModel] = useState(localStorage.getItem('openai_model') || import.meta.env.VITE_API_MODEL || "gpt-4o");
 
     const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
+
+    // Ref to store AI's raw extraction output for diff analysis
+    const aiExtractedRef = useRef<Partial<ListingAgreementData> | null>(null);
 
     // Sync with local storage events
     useEffect(() => {
@@ -263,6 +268,7 @@ export const ListingGenerator: React.FC = () => {
                         });
                         extracted = aiResult;
                         aiSuccess = true;
+                        aiExtractedRef.current = { ...aiResult }; // Save AI output for later diff
                         console.log(`[AI] ✅ Success with ${attempt.label}`);
                         break;
                     } catch (e: any) {
@@ -377,6 +383,35 @@ export const ListingGenerator: React.FC = () => {
             const blob = new Blob([resultBytes as unknown as BlobPart], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
             saveAs(blob, `${outputName}.docx`);
 
+            // === Post-export: AI Diff Analysis (async, non-blocking) ===
+            if (aiExtractedRef.current) {
+                const aiOutput = aiExtractedRef.current;
+                const diffs = computeDiffs(aiOutput, data);
+                if (diffs.length > 0) {
+                    console.log(`[Optimizer] Found ${diffs.length} diffs, analyzing...`);
+                    // Fire-and-forget async
+                    (async () => {
+                        try {
+                            const suggestion = await analyzePromptDiff(emailText, diffs, apiKey.trim());
+                            const logEntry: OptimizationLogEntry = {
+                                id: Date.now().toString(),
+                                timestamp: Date.now(),
+                                diffs,
+                                aiSuggestion: suggestion,
+                                emailSnippet: emailText.substring(0, 200),
+                            };
+                            await saveOptimizationLog(logEntry);
+                            console.log('[Optimizer] ✅ Optimization log saved.');
+                        } catch (err) {
+                            console.warn('[Optimizer] Failed to save optimization log:', err);
+                        }
+                    })();
+                } else {
+                    console.log('[Optimizer] No diffs found — AI extraction was perfect!');
+                }
+                aiExtractedRef.current = null;
+            }
+
         } catch (e) {
             console.error(e);
             alert("Generation failed. Please check console (F12) for details. Ensure Pyodide is loaded.");
@@ -408,6 +443,21 @@ export const ListingGenerator: React.FC = () => {
             }
             return updated;
         });
+    };
+
+    const handleExportRegexRules = async () => {
+        try {
+            const logs = await getOptimizationLogs();
+            const markdown = generateRegexRulesMarkdown(logs);
+            const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+            saveAs(blob, `bitapp-regex-rules-${new Date().toISOString().slice(0, 10)}.md`);
+        } catch (err) {
+            console.error('[ExportRules] Failed:', err);
+            // Fallback: export without logs
+            const markdown = generateRegexRulesMarkdown([]);
+            const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+            saveAs(blob, `bitapp-regex-rules-${new Date().toISOString().slice(0, 10)}.md`);
+        }
     };
 
     return (
@@ -575,13 +625,23 @@ export const ListingGenerator: React.FC = () => {
                                 Smart Analyze (AI)
                             </Button>
                         </div>
-                        <Button
-                            variant="outline"
-                            className="w-full text-xs text-gray-500 border-none shadow-sm h-6"
-                            onClick={handleClear}
-                        >
-                            Clear All
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                className="flex-1 text-xs text-gray-500 border-dashed h-7"
+                                onClick={handleClear}
+                            >
+                                Clear All
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="flex-1 text-xs text-gray-500 border-dashed h-7"
+                                onClick={handleExportRegexRules}
+                            >
+                                <Download className="w-3 h-3 mr-1" />
+                                Export Regex Rules
+                            </Button>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
