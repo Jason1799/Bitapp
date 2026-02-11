@@ -6,6 +6,13 @@ export interface AIConfig {
     baseUrl?: string;
 }
 
+// Built-in fallback model chain: Gemini 3 Pro → Gemini 3 Flash
+export const BUILTIN_FALLBACK_MODELS: Array<{ model: string; baseUrl: string; label: string }> = [
+    { model: "gemini-2.5-pro", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", label: "Gemini 2.5 Pro" },
+    { model: "gemini-2.5-flash", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", label: "Gemini 2.5 Flash" },
+    { model: "gemini-2.0-flash", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", label: "Gemini 2.0 Flash" },
+];
+
 export const DEFAULT_SYSTEM_PROMPT = `You are an expert legal document analyzer specializing in crypto listing agreements. Extract the following fields from the email/contract text into JSON format.
 
 Fields to extract:

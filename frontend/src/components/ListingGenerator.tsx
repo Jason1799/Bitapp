@@ -6,7 +6,7 @@ import { Label } from './ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Wand2, RefreshCw, Trash2, History as HistoryIcon, FileText, Settings } from 'lucide-react';
 import { ListingAgreementData } from '../lib/types';
-import { analyzeWithAI } from '../lib/ai';
+import { analyzeWithAI, BUILTIN_FALLBACK_MODELS } from '../lib/ai';
 import { extractFields, detectTechnicalFee } from '../lib/extraction';
 import { saveAs } from 'file-saver';
 import { cn } from '../lib/utils';
@@ -246,12 +246,43 @@ export const ListingGenerator: React.FC = () => {
                     setIsAnalyzing(false);
                     return;
                 }
-                try {
-                    const aiResult = await analyzeWithAI(emailText, { apiKey: cleanApiKey, baseUrl: cleanBaseUrl, model: model.trim() });
-                    extracted = aiResult;
-                } catch (e) {
-                    console.error("AI Error, falling back to regex", e);
-                    alert("AI Analysis failed. Falling back to Regex.");
+
+                // Build the fallback chain: built-in Gemini models → user-configured model
+                const attempts: Array<{ model: string; baseUrl: string; label: string }> = [
+                    ...BUILTIN_FALLBACK_MODELS,
+                ];
+                // Add user's configured model if it's different from the built-ins
+                const userModelId = model.trim();
+                const isUserModelInBuiltins = BUILTIN_FALLBACK_MODELS.some(m => m.model === userModelId);
+                if (!isUserModelInBuiltins && userModelId) {
+                    attempts.push({ model: userModelId, baseUrl: cleanBaseUrl, label: `User: ${userModelId}` });
+                }
+
+                let aiSuccess = false;
+                const errors: string[] = [];
+
+                for (const attempt of attempts) {
+                    try {
+                        console.log(`[AI] Trying ${attempt.label} (${attempt.model})...`);
+                        const aiResult = await analyzeWithAI(emailText, {
+                            apiKey: cleanApiKey,
+                            baseUrl: attempt.baseUrl,
+                            model: attempt.model,
+                        });
+                        extracted = aiResult;
+                        aiSuccess = true;
+                        console.log(`[AI] ✅ Success with ${attempt.label}`);
+                        break;
+                    } catch (e: any) {
+                        const errMsg = e?.message || String(e);
+                        console.warn(`[AI] ❌ ${attempt.label} failed: ${errMsg}`);
+                        errors.push(`${attempt.label}: ${errMsg.substring(0, 80)}`);
+                    }
+                }
+
+                if (!aiSuccess) {
+                    console.error("[AI] All models failed, falling back to Regex.", errors);
+                    alert(`All AI models failed, using Regex fallback.\n\nErrors:\n${errors.join('\n')}`);
                     extracted = extractFields(emailText);
                 }
             } else {
