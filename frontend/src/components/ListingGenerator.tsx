@@ -615,19 +615,13 @@ export const ListingGenerator: React.FC = () => {
                                 Smart Analyze (AI)
                             </Button>
                         </div>
-                        <Button
-                            variant="outline"
-                            className="w-full text-xs text-gray-500 border-none shadow-sm h-6"
-                            onClick={handleClear}
-                        >
-                            Clear All
-                        </Button>
+
                     </CardContent>
                 </Card>
             </div>
 
             {/* Right Column: Form (65%) */}
-            <div className="flex flex-col gap-6 overflow-y-auto pr-2">
+            <div className="flex flex-col gap-6 h-full pr-2">
                 <Card className="border-none shadow-md bg-white/80 backdrop-blur-md h-full flex flex-col">
                     <CardHeader className="pb-4">
                         <div className="flex justify-between items-center">
@@ -645,9 +639,9 @@ export const ListingGenerator: React.FC = () => {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="flex-1 flex flex-col gap-6">
+                    <CardContent className="flex-1 flex flex-col min-h-0 p-6">
                         {/* 3 Column Grid for Fields */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-1 overflow-y-auto min-h-0 pr-1">
 
                             {/* 1. Address */}
                             <div className="space-y-1">
@@ -746,7 +740,7 @@ export const ListingGenerator: React.FC = () => {
 
 
                         {/* Technical Fee Toggle + Generate Button */}
-                        <div className="flex items-center justify-between pt-2 border-t mt-4 mb-4">
+                        <div className="flex items-center justify-between pt-4 border-t mt-auto">
                             <div className="flex items-center gap-2">
                                 <input
                                     type="checkbox"
@@ -757,14 +751,24 @@ export const ListingGenerator: React.FC = () => {
                                 />
                                 <Label htmlFor="techFee" className="cursor-pointer">Include Technical Fee Clause</Label>
                             </div>
-                            <Button
-                                className="bg-black hover:bg-gray-800 text-white h-10 px-6 text-sm shadow-lg rounded-md"
-                                onClick={handleGenerate}
-                                disabled={isGenerating}
-                            >
-                                {isGenerating ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : null}
-                                Generate Listing Agreement
-                            </Button>
+                            <div className="flex gap-3">
+                                <Button
+                                    variant="outline"
+                                    className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 h-10 px-4 text-sm"
+                                    onClick={handleClear}
+                                >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Clear All
+                                </Button>
+                                <Button
+                                    className="bg-black hover:bg-gray-800 text-white h-10 px-6 text-sm shadow-lg rounded-md"
+                                    onClick={handleGenerate}
+                                    disabled={isGenerating}
+                                >
+                                    {isGenerating ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : null}
+                                    Generate Listing Agreement
+                                </Button>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
