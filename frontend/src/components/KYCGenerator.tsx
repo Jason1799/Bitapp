@@ -123,23 +123,22 @@ export const KYCGenerator: React.FC = () => {
     };
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-[3.5fr_6.5fr] gap-8 h-full">
+        <div className="grid grid-cols-1 md:grid-cols-[35%_65%] gap-6 h-[calc(100vh-140px)]">
             {/* Left Column: Input (35%) */}
             <div className="flex flex-col gap-6">
                 <Card className="border-none shadow-md bg-white/50 backdrop-blur-sm h-full flex flex-col">
-                    <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                            <div>
-                                <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                                    KYC Raw Text
-                                </CardTitle>
-                            </div>
-                            <Button variant="ghost" size="icon" onClick={() => setShowHistory(!showHistory)} title="History">
-                                <HistoryIcon className="w-4 h-4 text-gray-600" />
+                    <CardHeader className="pb-3 pt-4 px-4">
+                        <div className="flex justify-between items-center">
+                            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+                                <FileText className="w-4 h-4 text-blue-600" />
+                                KYC Raw Text
+                            </CardTitle>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowHistory(!showHistory)} title="History">
+                                <HistoryIcon className="w-3.5 h-3.5 text-slate-500" />
                             </Button>
                         </div>
                     </CardHeader>
-                    <CardContent className="flex-1 flex flex-col relative overflow-hidden gap-4">
+                    <CardContent className="flex-1 flex flex-col relative overflow-hidden gap-4 p-4 pt-0">
                         {showHistory ? (
                             <div className="absolute inset-0 bg-white z-10 p-4 overflow-y-auto">
                                 <div className="flex justify-between items-center mb-4">
@@ -164,7 +163,7 @@ export const KYCGenerator: React.FC = () => {
                         ) : null}
 
                         <Textarea
-                            className="flex-1 min-h-[300px] font-mono text-sm leading-relaxed resize-none bg-gray-50 border-gray-200"
+                            className="flex-1 min-h-[200px] font-mono text-sm leading-relaxed resize-none bg-gray-50 border-gray-200 focus:bg-white transition-colors"
                             placeholder="Paste KYC raw text here..."
                             value={emailText}
                             onChange={(e) => setEmailText(e.target.value)}
@@ -172,14 +171,13 @@ export const KYCGenerator: React.FC = () => {
 
                         {/* File Upload Area */}
                         <div
-                            className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-2 bg-gray-50/50"
+                            className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-2 bg-gray-50/30"
                             onClick={() => fileInputRef.current?.click()}
                         >
                             <div className="flex items-center gap-2 text-gray-500">
-                                <Upload className="w-5 h-5" />
-                                <span className="text-sm font-medium">Drag and drop files here</span>
+                                <Upload className="w-4 h-4" />
+                                <span className="text-xs font-medium">Drag and drop files</span>
                             </div>
-                            <p className="text-xs text-gray-400">Limit 200MB per file • PNG, JPG</p>
                             <input
                                 type="file"
                                 multiple
@@ -188,21 +186,20 @@ export const KYCGenerator: React.FC = () => {
                                 ref={fileInputRef}
                                 onChange={handleFileChange}
                             />
-                            <Button variant="outline" size="sm" className="mt-1 h-8">Browse files</Button>
                         </div>
 
                         {/* Image Previews */}
                         {images.length > 0 && (
-                            <div className="flex gap-2 overflow-x-auto py-2">
+                            <div className="flex gap-2 overflow-x-auto py-2 min-h-[80px]">
                                 {images.map((file, idx) => (
-                                    <div key={idx} className="relative group w-16 h-16 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden border">
+                                    <div key={idx} className="relative group w-16 h-16 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden border shadow-sm">
                                         <img
                                             src={URL.createObjectURL(file)}
                                             alt="preview"
                                             className="w-full h-full object-cover"
                                         />
                                         <button
-                                            className="absolute top-0 right-0 bg-red-500 text-white rounded-bl-md p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            className="absolute top-0 right-0 bg-red-500 text-white p-0.5 opacity-0 group-hover:opacity-100 transition-opacity rounded-bl"
                                             onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
                                         >
                                             <X className="w-3 h-3" />
@@ -212,23 +209,14 @@ export const KYCGenerator: React.FC = () => {
                             </div>
                         )}
 
-                        <div className="flex flex-col gap-3 mt-auto">
-                            <Button
-                                className="w-full bg-black hover:bg-gray-800 text-white shadow-sm"
-                                onClick={handleAnalyze}
-                                disabled={isAnalyzing}
-                            >
-                                {isAnalyzing ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : null}
-                                Analyze
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="w-full bg-black hover:bg-gray-800 text-white border-none shadow-sm"
-                                onClick={handleClear}
-                            >
-                                一键清空
-                            </Button>
-                        </div>
+                        <Button
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm mt-auto"
+                            onClick={handleAnalyze}
+                            disabled={isAnalyzing}
+                        >
+                            {isAnalyzing ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Wand2 className="w-4 h-4 mr-2" />}
+                            Smart Analyze
+                        </Button>
                     </CardContent>
                 </Card>
             </div>
@@ -240,15 +228,15 @@ export const KYCGenerator: React.FC = () => {
                         <CardTitle>KYC Data Fields</CardTitle>
                     </CardHeader>
                     <CardContent className="flex-1 flex flex-col gap-6">
-                        <div className="space-y-4">
-                            {/* Account ID standalone? or part of grid? usually standalone at top or in grid. Screenshot didn't explicitly show it but it's needed. I'll put it in grid or standalone */}
+                        <div className="space-y-6">
+                            {/* Account ID standalone */}
                             <div className="space-y-1">
                                 <Label className="text-xs text-gray-500">Account ID (CID)</Label>
-                                <Input value={accountId} onChange={e => setAccountId(e.target.value)} placeholder="e.g. 1234567" />
+                                <Input value={accountId} onChange={e => setAccountId(e.target.value)} placeholder="e.g. 1234567" className="font-mono" />
                             </div>
 
                             {/* 3 Column Grid for fields */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {KYC_FIELDS.map(field => (
                                     <div key={field.key} className="space-y-1">
                                         <Label className="text-xs text-gray-500">{field.label}</Label>
@@ -263,13 +251,21 @@ export const KYCGenerator: React.FC = () => {
                         </div>
 
                         {/* Generate Button at bottom right */}
-                        <div className="mt-auto pt-8 flex justify-end">
+                        <div className="flex items-center justify-end pt-4 border-t mt-auto gap-3">
                             <Button
-                                className="bg-black hover:bg-gray-800 text-white h-12 px-8 text-md shadow-lg rounded-md min-w-[200px]"
+                                variant="outline"
+                                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 h-10 px-4 text-sm"
+                                onClick={handleClear}
+                            >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Clear All
+                            </Button>
+                            <Button
+                                className="bg-black hover:bg-gray-800 text-white h-10 px-6 text-sm shadow-lg rounded-md"
                                 onClick={handleGenerate}
                                 disabled={isGenerating}
                             >
-                                {isGenerating ? <RefreshCw className="w-5 h-5 mr-2 animate-spin" /> : null}
+                                {isGenerating ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
                                 Generate KYC Document
                             </Button>
                         </div>
