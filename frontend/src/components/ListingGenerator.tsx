@@ -550,9 +550,9 @@ export const ListingGenerator: React.FC = () => {
                                     <FileText className="w-4 h-4 text-blue-600" />
                                     Email Input
                                 </CardTitle>
-                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-100">
-                                    <div className={cn("w-1.5 h-1.5 rounded-full transition-colors duration-500", apiKey ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]")} />
-                                    <span className={cn("text-[10px] font-medium font-mono pt-[1px] tracking-tight", apiKey ? "text-green-700" : "text-red-700")}>
+                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100">
+                                    <div className={cn("w-2 h-2 rounded-full transition-colors duration-500", apiKey ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]")} />
+                                    <span className={cn("text-xs font-medium font-mono pt-[1px] tracking-tight", apiKey ? "text-green-700" : "text-red-700")}>
                                         {model.split('/').pop()?.split('-')[0] || "AI"} {apiKey ? "已连接" : "未连接"}
                                     </span>
                                 </div>
