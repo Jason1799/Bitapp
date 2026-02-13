@@ -621,7 +621,7 @@ export const ListingGenerator: React.FC = () => {
             </div>
 
             {/* Right Column: Form (65%) */}
-            <div className="flex flex-col gap-6 h-full pr-2">
+            <div className="flex flex-col gap-6 overflow-y-auto pr-2">
                 <Card className="border-none shadow-md bg-white/80 backdrop-blur-md h-full flex flex-col">
                     <CardHeader className="pb-4">
                         <div className="flex justify-between items-center">
@@ -639,9 +639,9 @@ export const ListingGenerator: React.FC = () => {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="flex-1 flex flex-col min-h-0 p-6">
+                    <CardContent className="flex-1 flex flex-col gap-6">
                         {/* 3 Column Grid for Fields */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-1 overflow-y-auto min-h-0 pr-1">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                             {/* 1. Address */}
                             <div className="space-y-1">
