@@ -543,20 +543,26 @@ export const ListingGenerator: React.FC = () => {
             {/* Left Column: Input (35%) */}
             <div className="flex flex-col gap-6">
                 <Card className="border-none shadow-md bg-white/50 backdrop-blur-sm h-full flex flex-col">
-                    <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                            <div>
+                    <CardHeader className="pb-3 pt-4 px-4">
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-3">
                                 <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                                     <FileText className="w-4 h-4 text-blue-600" />
                                     Email Input
                                 </CardTitle>
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-100">
+                                    <div className={cn("w-1.5 h-1.5 rounded-full transition-colors duration-500", apiKey ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]")} />
+                                    <span className={cn("text-[10px] font-medium font-mono pt-[1px] tracking-tight", apiKey ? "text-green-700" : "text-red-700")}>
+                                        {model.split('/').pop()?.split('-')[0] || "AI"} {apiKey ? "已连接" : "未连接"}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="flex gap-2">
-                                <Button variant="ghost" size="icon" onClick={() => setShowHistory(!showHistory)} title="History">
-                                    <HistoryIcon className="w-4 h-4 text-gray-600" />
+                            <div className="flex gap-1">
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowHistory(!showHistory)} title="History">
+                                    <HistoryIcon className="w-3.5 h-3.5 text-slate-500" />
                                 </Button>
-                                <Button variant="ghost" size="icon" onClick={() => setShowSettings(true)} title="Settings">
-                                    <Settings className={cn("w-4 h-4 text-gray-600", !apiKey && "text-amber-500 animate-pulse")} />
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowSettings(true)} title="Settings">
+                                    <Settings className={cn("w-3.5 h-3.5 text-slate-500", !apiKey && "text-amber-500 animate-pulse")} />
                                 </Button>
                             </div>
                         </div>
