@@ -251,8 +251,15 @@ export const ListingGenerator: React.FC = () => {
                     return;
                 }
 
-                // Fallback chain: Gemini 3 Pro → Gemini 3 Flash → Regex
-                const attempts = [...BUILTIN_FALLBACK_MODELS];
+                // Fallback chain: User's model (if configured) → Gemini Flash → Gemini Pro → Regex
+                const attempts: Array<{ model: string; baseUrl: string; label: string }> = [];
+
+                // Add user's configured model as first priority (if different from defaults)
+                if (cleanBaseUrl && model && !cleanBaseUrl.includes('generativelanguage.googleapis.com')) {
+                    attempts.push({ model: model, baseUrl: cleanBaseUrl, label: `User Config (${model})` });
+                }
+                // Then add built-in fallback models
+                attempts.push(...BUILTIN_FALLBACK_MODELS);
 
                 let aiSuccess = false;
                 const errors: string[] = [];
@@ -260,15 +267,17 @@ export const ListingGenerator: React.FC = () => {
                 for (const attempt of attempts) {
                     try {
                         console.log(`[AI] Trying ${attempt.label} (${attempt.model})...`);
+                        const startTime = performance.now();
                         const aiResult = await analyzeWithAI(emailText, {
                             apiKey: cleanApiKey,
                             baseUrl: attempt.baseUrl,
                             model: attempt.model,
                         });
+                        const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+                        console.log(`[AI] ✅ Success with ${attempt.label} in ${elapsed}s`);
                         extracted = aiResult;
                         aiSuccess = true;
                         aiExtractedRef.current = { ...aiResult }; // Save AI output for later diff
-                        console.log(`[AI] ✅ Success with ${attempt.label}`);
                         break;
                     } catch (e: any) {
                         const errMsg = e?.message || String(e);

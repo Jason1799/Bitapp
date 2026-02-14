@@ -6,10 +6,10 @@ export interface AIConfig {
     baseUrl?: string;
 }
 
-// Built-in fallback models: Gemini 3 Pro → Gemini 3 Flash
+// Built-in fallback models: Flash first (faster), then Pro as fallback
 export const BUILTIN_FALLBACK_MODELS: Array<{ model: string; baseUrl: string; label: string }> = [
-    { model: "gemini-3-pro-preview", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", label: "Gemini 3 Pro" },
-    { model: "gemini-3-flash-preview", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", label: "Gemini 3 Flash" },
+    { model: "gemini-2.0-flash", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", label: "Gemini 2.0 Flash" },
+    { model: "gemini-2.0-pro", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", label: "Gemini 2.0 Pro" },
 ];
 
 export const DEFAULT_SYSTEM_PROMPT = `You are an expert legal document analyzer specializing in crypto listing agreements. Extract the following fields from the email/contract text into JSON format.
@@ -128,11 +128,11 @@ export const analyzeWithAI = async (text: string, config: AIConfig): Promise<Par
                 { role: "user", content: userPrompt }
             ],
             temperature: 0.1,
-            max_tokens: 2048
+            max_tokens: 1024
         };
 
-        // Add response_format ONLY if supported/needed
-        if (cleanBaseUrl.includes("openai.com") || cleanBaseUrl.includes("gemini")) {
+        // Add response_format for OpenAI only (Gemini is slower with json_object mode)
+        if (cleanBaseUrl.includes("openai.com")) {
             body.response_format = { type: "json_object" };
         }
     }
