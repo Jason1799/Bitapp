@@ -69,8 +69,8 @@ export const analyzeWithAI = async (text: string, config: AIConfig): Promise<Par
     let cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 
     // Proxy Logic
-    // Proxy Logic (Only in Dev)
     if (import.meta.env.DEV) {
+        // Development: Use Vite Proxy
         if (cleanBaseUrl.includes("integrate.api.nvidia.com")) {
             cleanBaseUrl = cleanBaseUrl.replace("https://integrate.api.nvidia.com", "/nvidia-api");
         } else if (cleanBaseUrl.includes("api.anthropic.com")) {
@@ -86,7 +86,7 @@ export const analyzeWithAI = async (text: string, config: AIConfig): Promise<Par
 
     // Determine Provider & Endpoint
     const isAnthropic = cleanBaseUrl.includes("anthropic");
-    const url = isAnthropic ? `${cleanBaseUrl}/v1/messages` : `${cleanBaseUrl}/chat/completions`;
+    const targetUrl = isAnthropic ? `${cleanBaseUrl}/v1/messages` : `${cleanBaseUrl}/chat/completions`;
 
     // Prepare Headers
     const headers: Record<string, string> = {
@@ -124,16 +124,23 @@ export const analyzeWithAI = async (text: string, config: AIConfig): Promise<Par
         };
 
         // Add response_format ONLY if supported/needed
-        // Gemini and OpenAI support it. DeepSeek and Grok might be stricter or default to text.
-        // For safety, we'll rely on the prompt "Return ONLY raw JSON" unless it's OpenAI/Gemini/NVIDIA(some models).
         if (cleanBaseUrl.includes("openai.com") || cleanBaseUrl.includes("gemini")) {
             body.response_format = { type: "json_object" };
         }
     }
 
-    const response = await fetch(url, {
+    // Production: Use Cloudflare Pages Function Proxy to avoid CORS
+    let fetchUrl = targetUrl;
+    const fetchHeaders = { ...headers };
+
+    if (import.meta.env.PROD && !targetUrl.startsWith("/")) {
+        fetchUrl = "/api/proxy";
+        fetchHeaders["X-Target-Url"] = targetUrl;
+    }
+
+    const response = await fetch(fetchUrl, {
         method: "POST",
-        headers,
+        headers: fetchHeaders,
         body: JSON.stringify(body)
     });
 

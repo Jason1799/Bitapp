@@ -1,9 +1,37 @@
+import { useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ListingGenerator } from "./components/ListingGenerator"
 import { KYCGenerator } from "./components/KYCGenerator"
 import { APIManager } from "./components/APIManager"
+import { getCloudConfig, getCloudPrompt } from "./lib/cloud-store"
+import { PROMPT_STORAGE_KEY } from "./lib/ai"
 
 function App() {
+    // Global cloud config loading — runs on every page load
+    // This ensures that API config saved by one user is available to all users
+    useEffect(() => {
+        (async () => {
+            try {
+                const cloudConfig = await getCloudConfig();
+                if (cloudConfig && cloudConfig.apiKey) {
+                    localStorage.setItem('openai_key', cloudConfig.apiKey);
+                    localStorage.setItem('openai_base_url', cloudConfig.baseUrl || 'https://api.openai.com/v1');
+                    localStorage.setItem('openai_model', cloudConfig.model || 'gpt-4o');
+                    localStorage.setItem('openai_extra_json', cloudConfig.extraJson || '{}');
+                    window.dispatchEvent(new Event('local-storage-update'));
+                    console.log('[App] Cloud config loaded successfully');
+                }
+
+                const cloudPrompt = await getCloudPrompt();
+                if (cloudPrompt) {
+                    localStorage.setItem(PROMPT_STORAGE_KEY, cloudPrompt);
+                    console.log('[App] Cloud prompt loaded successfully');
+                }
+            } catch {
+                console.warn('[App] Cloud sync failed on startup, using local data.');
+            }
+        })();
+    }, []);
     return (
         <Tabs defaultValue="listing" orientation="vertical" className="min-h-screen bg-secondary/30 flex font-sans text-foreground">
             {/* Sidebar */}
