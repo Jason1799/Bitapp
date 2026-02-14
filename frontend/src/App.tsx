@@ -5,43 +5,64 @@ import { APIManager } from "./components/APIManager"
 
 function App() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4 font-sans text-slate-900">
-            <div className="max-w-[1600px] mx-auto space-y-6">
-                <header className="flex items-center justify-between pb-4 border-b border-slate-200">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-slate-900 text-white px-3 py-1.5 rounded-md font-bold text-lg tracking-tight">
+        <Tabs defaultValue="listing" orientation="vertical" className="min-h-screen bg-secondary/30 flex font-sans text-foreground">
+            {/* Sidebar */}
+            <aside className="w-64 bg-white border-r border-border flex flex-col fixed h-full z-10">
+                <div className="h-16 flex items-center px-6 border-b border-border">
+                    <div className="flex items-center gap-2">
+                        <div className="bg-primary text-primary-foreground px-2 py-1 rounded-md font-bold text-lg tracking-tight">
                             BitMart
                         </div>
-                        <h1 className="text-lg font-medium text-slate-600">Agreement Generator</h1>
+                        <span className="font-semibold text-lg tracking-tight">Generator</span>
                     </div>
-                    <div className="text-xs text-slate-400 font-mono">
-                        Client-Side Secure Processing
-                    </div>
-                </header>
+                </div>
 
-                <main>
-                    <Tabs defaultValue="listing" className="w-full space-y-8">
-                        <div className="flex justify-center">
-                            <TabsList className="grid w-[600px] grid-cols-3 h-12 bg-slate-100 p-1 rounded-xl">
-                                <TabsTrigger value="listing" className="rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all duration-200">Listing Agreement</TabsTrigger>
-                                <TabsTrigger value="kyc" className="rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all duration-200">KYC Generator</TabsTrigger>
-                                <TabsTrigger value="api" className="rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all duration-200">API Manager</TabsTrigger>
-                            </TabsList>
+                <div className="p-4 flex-1">
+                    <TabsList className="flex flex-col h-auto bg-transparent gap-2 p-0 w-full items-stretch">
+                        <TabsTrigger
+                            value="listing"
+                            className="justify-start px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                        >
+                            Listing Agreement
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="kyc"
+                            className="justify-start px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                        >
+                            KYC Generator
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="api"
+                            className="justify-start px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                        >
+                            API Manager
+                        </TabsTrigger>
+                    </TabsList>
+
+                    <div className="mt-auto pb-4">
+                        <div className="px-4 py-3 rounded-xl bg-secondary/50 text-xs text-muted-foreground font-mono">
+                            <p>Secure Environment</p>
+                            <p className="mt-1 opacity-70">Client-Side Processing</p>
                         </div>
+                    </div>
+                </div>
+            </aside>
 
-                        <TabsContent value="listing" className="outline-none animate-in fade-in-50 duration-300 slide-in-from-bottom-2">
-                            <ListingGenerator />
-                        </TabsContent>
-                        <TabsContent value="kyc" className="outline-none animate-in fade-in-50 duration-300 slide-in-from-bottom-2">
-                            <KYCGenerator />
-                        </TabsContent>
-                        <TabsContent value="api" className="outline-none animate-in fade-in-50 duration-300 slide-in-from-bottom-2">
-                            <APIManager />
-                        </TabsContent>
-                    </Tabs>
-                </main>
-            </div>
-        </div>
+            {/* Main Content */}
+            <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen w-full">
+                <div className="max-w-[1600px] mx-auto">
+                    <TabsContent value="listing" className="mt-0 outline-none animate-in fade-in-50 duration-300 slide-in-from-bottom-2">
+                        <ListingGenerator />
+                    </TabsContent>
+                    <TabsContent value="kyc" className="mt-0 outline-none animate-in fade-in-50 duration-300 slide-in-from-bottom-2">
+                        <KYCGenerator />
+                    </TabsContent>
+                    <TabsContent value="api" className="mt-0 outline-none animate-in fade-in-50 duration-300 slide-in-from-bottom-2">
+                        <APIManager />
+                    </TabsContent>
+                </div>
+            </main>
+        </Tabs>
     )
 }
 
