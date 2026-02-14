@@ -120,7 +120,8 @@ export const analyzeWithAI = async (text: string, config: AIConfig): Promise<Par
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt }
             ],
-            temperature: 0.1
+            temperature: 0.1,
+            max_tokens: 2048
         };
 
         // Add response_format ONLY if supported/needed

@@ -288,9 +288,13 @@ export const ListingGenerator: React.FC = () => {
 
             hasTechnicalFee = detectTechnicalFee(emailText);
 
+            // Today's date in "Month DD, YYYY" format for signdate default
+            const todayStr = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
             setData(prev => ({
                 ...prev,
                 ...extracted,
+                signdate: todayStr, // Always default to today, user can manually change
                 includeTechnicalFee: hasTechnicalFee,
             }));
 
