@@ -202,6 +202,14 @@ export const APIManager: React.FC = () => {
 
             if (useProxy && cleanBaseUrl.includes("integrate.api.nvidia.com")) {
                 cleanBaseUrl = cleanBaseUrl.replace("https://integrate.api.nvidia.com", "/nvidia-api");
+            } else if (useProxy && cleanBaseUrl.includes("generativelanguage.googleapis.com")) {
+                cleanBaseUrl = cleanBaseUrl.replace("https://generativelanguage.googleapis.com", "/gemini-api");
+            } else if (useProxy && cleanBaseUrl.includes("api.deepseek.com")) {
+                cleanBaseUrl = cleanBaseUrl.replace("https://api.deepseek.com", "/deepseek-api");
+            } else if (useProxy && cleanBaseUrl.includes("api.anthropic.com")) {
+                cleanBaseUrl = cleanBaseUrl.replace("https://api.anthropic.com", "/anthropic-api");
+            } else if (useProxy && cleanBaseUrl.includes("api.x.ai")) {
+                cleanBaseUrl = cleanBaseUrl.replace("https://api.x.ai", "/grok-api");
             }
             // Add other proxy replacements similarly if needed, or rely on manual input
 
