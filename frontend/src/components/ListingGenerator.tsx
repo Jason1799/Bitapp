@@ -297,6 +297,24 @@ export const ListingGenerator: React.FC = () => {
 
             hasTechnicalFee = detectTechnicalFee(emailText);
 
+            // Format amounts with commas and auto-generate word equivalents
+            if (extracted.amount) {
+                const rawAmt = String(extracted.amount).replace(/[^0-9.]/g, '');
+                const parts = rawAmt.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                extracted.amount = parts.join('.');
+                const words = numberToWords(rawAmt);
+                if (words) extracted.amountInWords = words;
+            }
+            if (extracted.marketingamount) {
+                const rawMkt = String(extracted.marketingamount).replace(/[^0-9.]/g, '');
+                const parts = rawMkt.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                extracted.marketingamount = parts.join('.');
+                const words = numberToWords(rawMkt);
+                if (words) extracted.marketinginwords = words;
+            }
+
             // Today's date in "Month DD, YYYY" format for signdate default
             const todayStr = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
