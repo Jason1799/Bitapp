@@ -553,7 +553,7 @@ export const ListingGenerator: React.FC = () => {
                                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100">
                                     <div className={cn("w-2 h-2 rounded-full transition-colors duration-500", apiKey ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]")} />
                                     <span className={cn("text-xs font-medium font-mono pt-[1px] tracking-tight", apiKey ? "text-green-700" : "text-red-700")}>
-                                        {model.split('/').pop()?.split('-')[0] || "AI"} {apiKey ? "已连接" : "未连接"}
+                                        {(model.split('/').pop()?.split('-')[0] || "AI").charAt(0).toUpperCase() + (model.split('/').pop()?.split('-')[0] || "AI").slice(1)} {apiKey ? "已连接" : "未连接"}
                                     </span>
                                 </div>
                             </div>
