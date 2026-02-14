@@ -34,7 +34,8 @@ export const APIManager: React.FC = () => {
     const [isTesting, setIsTesting] = useState(false);
 
     // Prompt Editor State
-    const [promptText, setPromptText] = useState("");
+    const [useProxy, setUseProxy] = useState(true);
+    const [promptText, setPromptText] = useState(DEFAULT_SYSTEM_PROMPT);
     const [promptSaved, setPromptSaved] = useState(false);
 
     // Template Management State
@@ -199,9 +200,10 @@ export const APIManager: React.FC = () => {
         try {
             let cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 
-            if (cleanBaseUrl.includes("integrate.api.nvidia.com")) {
+            if (useProxy && cleanBaseUrl.includes("integrate.api.nvidia.com")) {
                 cleanBaseUrl = cleanBaseUrl.replace("https://integrate.api.nvidia.com", "/nvidia-api");
             }
+            // Add other proxy replacements similarly if needed, or rely on manual input
 
             const url = `${cleanBaseUrl}/chat/completions`;
 
@@ -236,7 +238,7 @@ export const APIManager: React.FC = () => {
 
             if (!response.ok) {
                 const err = await response.text();
-                throw new Error(`API Error: ${response.status} ${response.statusText}\n${err}`);
+                throw new Error(`API Error: ${response.status} ${response.statusText} at ${url}\n${err}`);
             }
 
             if (!response.body) throw new Error("No response body");
@@ -457,6 +459,18 @@ export const APIManager: React.FC = () => {
                                     </div>
 
                                     <div className="space-y-4 pt-2">
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                id="useProxy"
+                                                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                checked={useProxy}
+                                                onChange={(e) => setUseProxy(e.target.checked)}
+                                            />
+                                            <Label htmlFor="useProxy" className="text-xs text-gray-600">
+                                                Use Local Proxy (Requires Vite Dev Server)
+                                            </Label>
+                                        </div>
                                         <div className="space-y-1">
                                             <Label className="text-xs text-gray-500 font-mono">BASE URL</Label>
                                             <Input className="font-mono text-xs bg-gray-50" value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} placeholder="https://api.openai.com/v1" />
