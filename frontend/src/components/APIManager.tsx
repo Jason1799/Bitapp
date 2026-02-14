@@ -200,20 +200,36 @@ export const APIManager: React.FC = () => {
         try {
             let cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 
-            if (useProxy && cleanBaseUrl.includes("integrate.api.nvidia.com")) {
-                cleanBaseUrl = cleanBaseUrl.replace("https://integrate.api.nvidia.com", "/nvidia-api");
-            } else if (useProxy && cleanBaseUrl.includes("generativelanguage.googleapis.com")) {
-                cleanBaseUrl = cleanBaseUrl.replace("https://generativelanguage.googleapis.com", "/gemini-api");
-            } else if (useProxy && cleanBaseUrl.includes("api.deepseek.com")) {
-                cleanBaseUrl = cleanBaseUrl.replace("https://api.deepseek.com", "/deepseek-api");
-            } else if (useProxy && cleanBaseUrl.includes("api.anthropic.com")) {
-                cleanBaseUrl = cleanBaseUrl.replace("https://api.anthropic.com", "/anthropic-api");
-            } else if (useProxy && cleanBaseUrl.includes("api.x.ai")) {
-                cleanBaseUrl = cleanBaseUrl.replace("https://api.x.ai", "/grok-api");
-            }
-            // Add other proxy replacements similarly if needed, or rely on manual input
+            let targetUrl = `${cleanBaseUrl}/chat/completions`;
+            let proxyUrl = targetUrl;
+            let requestHeaders: Record<string, string> = {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            };
 
-            const url = `${cleanBaseUrl}/chat/completions`;
+            if (useProxy) {
+                // Production: Use Cloudflare Pages Function Proxy
+                if (import.meta.env.PROD) {
+                    proxyUrl = "/api/proxy";
+                    requestHeaders["X-Target-Url"] = targetUrl;
+                }
+                // Development: Use Vite Proxy
+                else {
+                    if (cleanBaseUrl.includes("integrate.api.nvidia.com")) {
+                        proxyUrl = cleanBaseUrl.replace("https://integrate.api.nvidia.com", "/nvidia-api") + "/chat/completions";
+                    } else if (cleanBaseUrl.includes("generativelanguage.googleapis.com")) {
+                        proxyUrl = cleanBaseUrl.replace("https://generativelanguage.googleapis.com", "/gemini-api") + "/chat/completions";
+                    } else if (cleanBaseUrl.includes("api.deepseek.com")) {
+                        proxyUrl = cleanBaseUrl.replace("https://api.deepseek.com", "/deepseek-api") + "/chat/completions";
+                    } else if (cleanBaseUrl.includes("api.anthropic.com")) {
+                        proxyUrl = cleanBaseUrl.replace("https://api.anthropic.com", "/anthropic-api") + "/chat/completions";
+                    } else if (cleanBaseUrl.includes("api.x.ai")) {
+                        proxyUrl = cleanBaseUrl.replace("https://api.x.ai", "/grok-api") + "/chat/completions";
+                    }
+                }
+            }
+
+            const url = proxyUrl;
 
             let extraPayload = {};
             try {
@@ -226,10 +242,7 @@ export const APIManager: React.FC = () => {
 
             const response = await fetch(url, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiKey}`
-                },
+                headers: requestHeaders,
                 body: JSON.stringify({
                     model: model || "gpt-3.5-turbo",
                     messages: [
@@ -476,7 +489,7 @@ export const APIManager: React.FC = () => {
                                                 onChange={(e) => setUseProxy(e.target.checked)}
                                             />
                                             <Label htmlFor="useProxy" className="text-xs text-gray-600">
-                                                Use Local Proxy (Requires Vite Dev Server)
+                                                Use Proxy (Recommended for CORS)
                                             </Label>
                                         </div>
                                         <div className="space-y-1">
