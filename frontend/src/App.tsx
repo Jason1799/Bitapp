@@ -49,18 +49,20 @@ function App() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen w-full">
-                <div className="max-w-[1600px] mx-auto">
-                    <TabsContent value="listing" className="mt-0 outline-none animate-in fade-in-50 duration-300 slide-in-from-bottom-2">
+            <main className="flex-1 ml-64 overflow-y-auto h-screen w-full bg-secondary/30">
+                <TabsContent value="listing" className="mt-0 outline-none animate-in fade-in-50 duration-300 slide-in-from-bottom-2 p-8">
+                    <div className="max-w-[1600px] mx-auto">
                         <ListingGenerator />
-                    </TabsContent>
-                    <TabsContent value="kyc" className="mt-0 outline-none animate-in fade-in-50 duration-300 slide-in-from-bottom-2">
+                    </div>
+                </TabsContent>
+                <TabsContent value="kyc" className="mt-0 outline-none animate-in fade-in-50 duration-300 slide-in-from-bottom-2 p-8">
+                    <div className="max-w-[1600px] mx-auto">
                         <KYCGenerator />
-                    </TabsContent>
-                    <TabsContent value="api" className="mt-0 outline-none animate-in fade-in-50 duration-300 slide-in-from-bottom-2">
-                        <APIManager />
-                    </TabsContent>
-                </div>
+                    </div>
+                </TabsContent>
+                <TabsContent value="api" className="mt-0 h-full outline-none animate-in fade-in-50 duration-300 slide-in-from-bottom-2">
+                    <APIManager />
+                </TabsContent>
             </main>
         </Tabs>
     )
