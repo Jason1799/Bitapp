@@ -37,13 +37,20 @@ Rules:
 1. For jurisdiction: NEVER leave empty if there is an address. Always infer the country from the address.
 2. For dates: Convert any date format to "Month DD, YYYY" format. CRITICAL date disambiguation rules:
    - The current year is 2026. All listing agreements should have dates in 2025-2027 range.
-   - For ambiguous short formats like "21/2/26", "3/1/26", prefer DD/M/YY interpretation (day/month/year):
-     * "21/2/26" → February 21, 2026 (NOT 2021/Feb/26)
-     * "3/1/26" → January 3, 2026
-   - When you see a 2-digit number that could be a year, match it to 20XX. Prefer the interpretation that gives a FUTURE date (2025-2027), not a past date.
-   - NEVER output a date before 2025. If the raw text suggests an old year (e.g. 2021, 2024), it is almost certainly a misparse — re-examine the format.
-   - For "Latest date" or "Listing date" fields, the date should be in the near future (within 12 months from now).
-   - Examples: "21/2/26" → "February 21, 2026", "26/3/1" → "March 1, 2026", "2026-02-26" → "February 26, 2026"
+   - When you see a 2-digit number that could be a year (e.g. "26"), map it to 2026.
+   - NEVER output a date before 2025.
+   - AMBIGUOUS DATES (both numbers <= 12, e.g. "3/11/2026"): This could be March 11 OR November 3.
+     * First identify the year (2026, or 26→2026).
+     * Then for the remaining two numbers, consider BOTH interpretations as potential dates.
+     * Pick the date that is CLOSEST TO TODAY in the FUTURE (today is approximately February 2026).
+     * If both are in the future, pick the nearer one.
+     * If only one is in the future, pick that one.
+     * If both are in the past, pick the more recent one.
+     * Examples (assuming today is Feb 13, 2026):
+       "3/11/2026" → "March 11, 2026" (March 11 is closer future than November 3)
+       "1/5/2026" → "May 1, 2026" (January 5 is past, May 1 is future)
+       "6/12/2026" → "June 12, 2026" (June 12 is closer than December 6)
+   - If one number is > 12, there is no ambiguity (e.g. "15/3/2026" → "March 15, 2026").
 3. For amounts: Extract pure numbers. If text says "$90k" or "$90,000", output "90000".
 4. For amountInWords/marketinginwords: Convert to ALL CAPS English words.
 5. If a field truly cannot be determined, return empty string "".

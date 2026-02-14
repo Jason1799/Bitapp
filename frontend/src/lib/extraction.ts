@@ -263,7 +263,7 @@ const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
  * Normalize various date formats to "Month DD, YYYY"
  * Supports: 2026-02-11, 02/11/2026, 11/2/26, Feb 11 2026, 11 Feb 2026, etc.
  */
-const normalizeDate = (raw: string): string => {
+export const normalizeDate = (raw: string): string => {
     const s = raw.trim();
 
     // Already in correct format: "February 11, 2026"
@@ -308,8 +308,28 @@ const normalizeDate = (raw: string): string => {
         if (numB > 12 && numA <= 12) {
             return `${MONTHS[numA - 1]} ${numB}, ${year}`;
         }
-        // Both <= 12: default to DD/MM/YY (more common in international formats)
+        // Both <= 12: ambiguous — use "closest future date" disambiguation
         if (numA <= 12 && numB <= 12) {
+            // Interpretation A: A=month, B=day (MM/DD/YYYY)
+            const dateA = new Date(year, numA - 1, numB);
+            // Interpretation B: A=day, B=month (DD/MM/YYYY)
+            const dateB = new Date(year, numB - 1, numA);
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            const diffA = dateA.getTime() - now.getTime();
+            const diffB = dateB.getTime() - now.getTime();
+
+            // Both in the future: pick the closer one
+            if (diffA >= 0 && diffB >= 0) {
+                if (diffA <= diffB) return `${MONTHS[numA - 1]} ${numB}, ${year}`;
+                return `${MONTHS[numB - 1]} ${numA}, ${year}`;
+            }
+            // Only one in the future: pick it
+            if (diffA >= 0) return `${MONTHS[numA - 1]} ${numB}, ${year}`;
+            if (diffB >= 0) return `${MONTHS[numB - 1]} ${numA}, ${year}`;
+            // Both in the past: pick the more recent one
+            if (diffA >= diffB) return `${MONTHS[numA - 1]} ${numB}, ${year}`;
             return `${MONTHS[numB - 1]} ${numA}, ${year}`;
         }
     }
