@@ -273,7 +273,7 @@ export const APIManager: React.FC = () => {
         }
     };
 
-    const applyPreset = (preset: "nvidia" | "kimi" | "openai" | "gemini" | "deepseek" | "claude" | "grok") => {
+    const applyPreset = (preset: "nvidia" | "kimi" | "openai" | "gemini" | "deepseek" | "claude" | "grok" | "minimax") => {
         if (preset === "nvidia") {
             setBaseUrl("https://integrate.api.nvidia.com/v1");
             setModel("moonshotai/kimi-k2.5");
@@ -298,10 +298,13 @@ export const APIManager: React.FC = () => {
             setBaseUrl("https://api.anthropic.com");
             setModel("claude-3-5-sonnet-20240620");
             setExtraJson('{}');
-        } else if (preset === "grok") {
             setBaseUrl("https://api.x.ai/v1");
             setModel("grok-beta");
             setExtraJson('{}');
+        } else if (preset === "minimax") {
+            setBaseUrl("https://integrate.api.nvidia.com/v1");
+            setModel("minimax/minimax-m2.1");
+            setExtraJson('{"model": "minimax/minimax-m2.1", "temperature": 0.6, "max_tokens": 8192}');
         }
     };
 
@@ -395,6 +398,7 @@ export const APIManager: React.FC = () => {
                                             <Button variant={model.includes('gpt') ? "default" : "outline"} size="sm" onClick={() => applyPreset("openai")} className={cn(model.includes('gpt') ? "bg-black hover:bg-gray-800" : "")}>OpenAI</Button>
                                             <Button variant={model.includes('moonshot') && !model.includes('kimi-k2.5') ? "default" : "outline"} size="sm" onClick={() => applyPreset("kimi")} className={cn(model.includes('moonshot') && !model.includes('kimi-k2.5') ? "bg-black hover:bg-gray-800" : "")}>Kimi</Button>
                                             <Button variant={model.includes('llama') || model.includes('kimi-k2.5') ? "default" : "outline"} size="sm" onClick={() => applyPreset("nvidia")} className={cn(model.includes('llama') || model.includes('kimi-k2.5') ? "bg-green-600 hover:bg-green-700 text-white" : "border-green-200 hover:bg-green-50 text-green-700")}>NVIDIA</Button>
+                                            <Button variant={model.includes('minimax') ? "default" : "outline"} size="sm" onClick={() => applyPreset("minimax")} className={cn(model.includes('minimax') ? "bg-indigo-600 hover:bg-indigo-700 text-white" : "border-indigo-200 hover:bg-indigo-50 text-indigo-700")}>Minimax</Button>
                                         </div>
 
                                         <div className="flex gap-2 items-center pt-1">
@@ -412,6 +416,7 @@ export const APIManager: React.FC = () => {
                                                     else if (m.includes('gpt')) { setBaseUrl("https://api.openai.com/v1"); setExtraJson('{}'); }
                                                     else if (m.includes('moonshot-v1')) { setBaseUrl("https://api.moonshot.cn/v1"); setExtraJson('{}'); }
                                                     else if (m.includes('llama') || m.includes('kimi-k2.5')) { setBaseUrl("https://integrate.api.nvidia.com/v1"); setExtraJson('{"chat_template_kwargs": {"thinking": true}, "temperature": 0.3, "top_p": 1.0, "max_tokens": 1024}'); }
+                                                    else if (m.includes('minimax')) { setBaseUrl("https://integrate.api.nvidia.com/v1"); setExtraJson('{"model": "minimax/minimax-m2.1", "temperature": 0.6, "max_tokens": 8192}'); }
                                                 }}
                                             >
                                                 <optgroup label="OpenAI">
@@ -442,6 +447,7 @@ export const APIManager: React.FC = () => {
                                                     <option value="grok-2">grok-2 (Latest)</option>
                                                 </optgroup>
                                                 <optgroup label="Kimi / NVIDIA">
+                                                    <option value="minimax/minimax-m2.1">minimax-m2.1 (NVIDIA)</option>
                                                     <option value="moonshot-v1-8k">moonshot-v1-8k (Kimi)</option>
                                                     <option value="moonshotai/kimi-k2.5">kimi-k2.5 (NVIDIA)</option>
                                                     <option value="meta/llama-3.1-405b-instruct">llama-3.1-405b (NVIDIA)</option>
