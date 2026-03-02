@@ -434,10 +434,50 @@ def clean_line(line):
     line = re.sub(r"^(?:[-\u2013\u2014]\s+|[\u2022\u00b7]\s+)", "", line)
     return line.strip()
 
+GENDER_MAP = {
+    "男": "Male",
+    "女": "Female",
+    "未知": "Unknown",
+    "男性": "Male",
+    "女性": "Female",
+    "其他": "Other",
+}
+
+ID_TYPE_MAP = {
+    "驾驶证": "Driver's License",
+    "驾照": "Driver's License",
+    "护照": "Passport",
+    "身份证": "Identity Card",
+    "居民身份证": "Identity Card",
+    "通行证": "Travel Permit",
+    "港澳通行证": "Travel Permit",
+    "台湾通行证": "Travel Permit",
+    "居留证": "Residence Permit",
+    "居住证": "Residence Permit",
+    "军官证": "Military ID",
+    "士兵证": "Military ID",
+    "回乡证": "Home Return Permit",
+}
+
+ID_EXPIRED_MAP = {
+    "未过期": "Not Expired",
+    "过期": "Expired",
+    "已过期": "Expired",
+    "有效": "Not Expired",
+    "无效": "Expired",
+    "是": "Expired",
+    "否": "Not Expired",
+}
+
 def normalize_kyc_value(key, value):
     value = value.strip()
     if not value: return value
-    # Simplified normalization - add more if needed
+    if key == "gender":
+        return GENDER_MAP.get(value, value)
+    if key == "id_type":
+        return ID_TYPE_MAP.get(value, value)
+    if key == "id_expired":
+        return ID_EXPIRED_MAP.get(value, value)
     if key == "device_id":
         value = re.sub(r"^(id|device\s*id)\s*[:\uff1a]\s*", "", value, flags=re.IGNORECASE)
     return value
