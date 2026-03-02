@@ -487,7 +487,7 @@ def is_kyc_label_line(line):
     if not candidate: return False
     for labels in KYC_LABELS.values():
         for label in labels:
-            if re.match(rf"^{re.escape(label)}\s*[:\uff1a]?\s*$", candidate, flags=re.IGNORECASE):
+            if re.match(rf"^{re.escape(label)}\s*[：:]?\s*$", candidate, flags=re.IGNORECASE):
                 return True
     return False
 
@@ -496,7 +496,7 @@ def kyc_label_key(line):
     if not candidate: return None
     for key, labels in KYC_LABELS.items():
         for label in labels:
-             if re.match(rf"^{re.escape(label)}\s*[:\uff1a]?\s*$", candidate, flags=re.IGNORECASE):
+             if re.match(rf"^{re.escape(label)}\s*[：:]?\s*$", candidate, flags=re.IGNORECASE):
                  return key
     return None
 
@@ -504,7 +504,7 @@ def extract_kyc_inline_pairs(line, result):
     occurrences = []
     for key, labels in KYC_LABELS.items():
         for label in labels:
-            pattern = rf"{re.escape(label)}(?=\s*[:\uff1a]|\s+|$)\s*[:\uff1a]?"
+            pattern = rf"{re.escape(label)}\s*[：:]?\s*"
             for match in re.finditer(pattern, line, flags=re.IGNORECASE):
                 occurrences.append((match.start(), match.end(), key))
     if not occurrences:
@@ -533,7 +533,7 @@ def extract_kyc_fields(text):
         matched = False
         for key, labels in KYC_LABELS.items():
              for label in labels:
-                 pattern = rf"^{re.escape(label)}(?=\s*[:\uff1a]|\s+|$)\s*[:\uff1a]?\s*(.*)$"
+                 pattern = rf"^{re.escape(label)}\s*[：:]?\s*(.*)$"
                  match = re.match(pattern, line, flags=re.IGNORECASE)
                  if not match: continue
                  
