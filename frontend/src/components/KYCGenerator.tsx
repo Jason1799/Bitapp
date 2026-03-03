@@ -44,12 +44,12 @@ export const KYCGenerator: React.FC = () => {
     const handleAnalyze = async () => {
         setIsAnalyzing(true);
         try {
-            const { runKYCExtraction } = await import('../lib/pyodide');
-            const extracted = await runKYCExtraction(emailText);
+            const { extractKYCFields } = await import('../lib/kyc-extraction');
+            const extracted = extractKYCFields(emailText);
             setData(prev => ({ ...prev, ...extracted }));
         } catch (e) {
             console.error(e);
-            alert("Analysis failed. Ensure Pyodide is loaded.");
+            alert("Analysis failed.");
         } finally {
             setIsAnalyzing(false);
         }
