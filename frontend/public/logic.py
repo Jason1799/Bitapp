@@ -506,21 +506,34 @@ def extract_kyc_inline_pairs(line, result):
         for label in labels:
             pattern = rf"{re.escape(label)}\s*[：:]?\s*"
             for match in re.finditer(pattern, line, flags=re.IGNORECASE):
-                occurrences.append((match.start(), match.end(), key))
+                occurrences.append((match.start(), match.end(), key, len(label)))
     if not occurrences:
         return
-    occurrences.sort(key=lambda item: item[0])
-    for idx, (_start, end, key) in enumerate(occurrences):
-        next_start = occurrences[idx + 1][0] if idx + 1 < len(occurrences) else len(line)
+    # Remove shorter overlapping matches at the same position (keep longest label)
+    occurrences.sort(key=lambda item: (item[0], -item[3]))
+    filtered = []
+    last_end = -1
+    for start, end, key, label_len in occurrences:
+        if start < last_end:
+            continue  # Skip: overlaps with a longer label already accepted
+        filtered.append((start, end, key))
+        last_end = end
+    for idx, (_start, end, key) in enumerate(filtered):
+        next_start = filtered[idx + 1][0] if idx + 1 < len(filtered) else len(line)
         raw_value = line[end:next_start].strip()
         raw_value = raw_value.lstrip(":：").strip()
-        # Clean trailing labels if they were part of the next match (regex lookahead isn't perfect here)
-        # Actually splitting by occurrences is safer.
         if not raw_value or is_kyc_label_line(raw_value):
             continue
         value = normalize_kyc_value(key, raw_value)
         if key not in result or len(value) > len(result[key]):
             result[key] = value
+
+# Build sorted label list: longest labels first to prevent short labels stealing matches
+_SORTED_LABELS = []
+for key, labels in KYC_LABELS.items():
+    for label in labels:
+        _SORTED_LABELS.append((label, key))
+_SORTED_LABELS.sort(key=lambda x: -len(x[0]))
 
 def extract_kyc_fields(text):
     lines = [clean_line(line) for line in text.splitlines()]
@@ -531,33 +544,31 @@ def extract_kyc_fields(text):
         line = lines[idx]
         extract_kyc_inline_pairs(line, result)
         matched = False
-        for key, labels in KYC_LABELS.items():
-             for label in labels:
-                 pattern = rf"^{re.escape(label)}\s*[：:]?\s*(.*)$"
-                 match = re.match(pattern, line, flags=re.IGNORECASE)
-                 if not match: continue
-                 
-                 value = match.group(1).strip()
-                 if value and is_kyc_label_line(value): value = ""
-                 
-                 if not value:
-                     j = idx + 1
+        for label, key in _SORTED_LABELS:
+             pattern = rf"^{re.escape(label)}\s*[：:]?\s*(.*)$"
+             match = re.match(pattern, line, flags=re.IGNORECASE)
+             if not match: continue
+             
+             value = match.group(1).strip()
+             if value and is_kyc_label_line(value): value = ""
+             
+             if not value:
+                 j = idx + 1
+                 while j < len(lines) and not lines[j].strip(): j += 1
+                 while j < len(lines):
+                     label_key = kyc_label_key(lines[j])
+                     if label_key is None: break
+                     if label_key != key: break
+                     j += 1
                      while j < len(lines) and not lines[j].strip(): j += 1
-                     while j < len(lines):
-                         label_key = kyc_label_key(lines[j])
-                         if label_key is None: break
-                         if label_key != key: break
-                         j += 1
-                         while j < len(lines) and not lines[j].strip(): j += 1
-                     
-                     if j < len(lines) and not is_kyc_label_line(lines[j]):
-                         value = lines[j].strip()
                  
-                 if value:
-                     result[key] = normalize_kyc_value(key, value)
-                 matched = True
-                 break
-             if matched: break
+                 if j < len(lines) and not is_kyc_label_line(lines[j]):
+                     value = lines[j].strip()
+             
+             if value:
+                 result[key] = normalize_kyc_value(key, value)
+             matched = True
+             break
         idx += 1
     return result
 
